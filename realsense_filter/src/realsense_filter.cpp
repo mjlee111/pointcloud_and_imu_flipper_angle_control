@@ -64,8 +64,8 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 
 void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, -0.8, -0.55, -0.3, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, 1.5708, 0, 0);
-  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, 0.55, 0.8, -0.3, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, 1.5708, 0, 0);
+  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, -0.8, -0.55, -0.3, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, 0.785398, 0, 0);
+  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, 0.55, 0.8, -0.3, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, 0.785398, 0, 0);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
   float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 + imu_pitch * 0.5;
