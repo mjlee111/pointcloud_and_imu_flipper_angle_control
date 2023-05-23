@@ -1,7 +1,5 @@
 <launch>
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen"/>
-  <!-- <node pkg="tf" type="static_transform_publisher" name="cam1_to_base" args="0.3 0 0 0 0 0 base_link camera_depth_optical_frame 10" />
-  <node pkg="tf" type="static_transform_publisher" name="cam2_to_base" args="-0.315 0 0 0 0 0 base_link camera2_depth_optical_frame 10" /> -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find realsense_filter)/rviz/realsense_flipper.rviz"/>
 
   <node pkg="e2box_imu" type="e2box_imu_node" name="e2box_imu_node" output="screen">

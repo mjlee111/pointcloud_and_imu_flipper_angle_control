@@ -96,7 +96,7 @@ void imu_callback(const sensor_msgs::Imu input_imu)
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
                   float x_min, float x_max, float y_min, float y_max, float z_min, float z_max,
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
-                  float x, float y, float z, float deg_z, float deg_y, float deg_x)
+                  float x, float y, float z, float deg_p, float deg_y, float deg_r)
 {
   // passthrough X : input_cloud_msg -> filtered_cloud_x
   pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_passthrough(new pcl::PointCloud<pcl::PointXYZ>);
@@ -171,9 +171,9 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
   Eigen::Affine3f transform = Eigen::Affine3f::Identity();
   transform.translation() << x, y, z;
-  transform.rotate(Eigen::AngleAxisf(deg_z, Eigen::Vector3f::UnitX()));
+  transform.rotate(Eigen::AngleAxisf(deg_p, Eigen::Vector3f::UnitX()));
   transform.rotate(Eigen::AngleAxisf(deg_y, Eigen::Vector3f::UnitY()));
-  transform.rotate(Eigen::AngleAxisf(deg_x, Eigen::Vector3f::UnitZ()));
+  transform.rotate(Eigen::AngleAxisf(deg_r, Eigen::Vector3f::UnitZ()));
   pcl::transformPointCloud(*filtered_cloud_2, *transformed_cloud, transform);
 
   if(transformed_cloud->empty()) return;

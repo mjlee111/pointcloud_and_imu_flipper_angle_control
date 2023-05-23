@@ -54,7 +54,7 @@ void imu_callback(const sensor_msgs::Imu input_imu);
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
                   float x_min, float x_max, float y_min, float y_max, float z_min, float z_max,
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
-                  float x, float y, float z, float deg_z, float deg_y, float deg_x);
+                  float x, float y, float z, float deg_p, float deg_y, float deg_r);
 
 double ransac(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg);
 
