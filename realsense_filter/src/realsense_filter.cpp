@@ -10,8 +10,8 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   cout << "START" << endl;
 
-  front_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, front_callback);
-  back_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, back_callback);
+  front_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
+  back_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
 
   imu_sub = n.subscribe<sensor_msgs::Imu>("/imu", 10, imu_callback);
 
@@ -64,8 +64,8 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 
 void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05 , 0.6, -0.5, -0.2, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.28, 2.0944, 0, 3.14159);
-  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.6, -0.05, -0.5, -0.2,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.28, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05 , 0.15, -0.2, 0.4, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.4,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
   float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 + imu_pitch * 0.5;
@@ -85,11 +85,11 @@ void imu_callback(const sensor_msgs::Imu input_imu)
 
   EulerAngles angles = quaternionToEulerAngles(q);
 
-  imu_roll = toDEG(angles.roll);
-  imu_pitch = toDEG(angles.pitch);
+  imu_pitch = toDEG(angles.roll);
+  imu_roll = toDEG(angles.pitch);
   imu_yaw = toDEG(angles.yaw);
 
-
+  cout << imu_roll << " / " << imu_pitch << endl; 
 }
 
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,

@@ -1,8 +1,14 @@
 <launch>
-  <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen"/>
-  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find realsense_filter)/rviz/realsense_flipper.rviz"/>
-  <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link" args="0 0 0 0 0 0 camera_color_frame base_link 10" />
-
-  <arg name="connect" default="usb"/>
+  <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node"
+    output="screen" />
+  <node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find realsense_filter)/rviz/realsense_flipper.rviz" />
+  <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link"
+    args="0 0 0 0 0 0 camera_color_frame base_link 10" />
+  <!-- <node pkg="ebimu" type="imu_pub" name="imu_pub">
+    <param name="port" value="/dev/IMU" />
+    <param name="baud" value="115200" />
+  </node> -->
+  <arg name="connect" default="usb" />
 
 </launch>
