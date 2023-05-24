@@ -1,19 +1,8 @@
 <launch>
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen"/>
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find realsense_filter)/rviz/realsense_flipper.rviz"/>
-
-  <node pkg="e2box_imu" type="e2box_imu_node" name="e2box_imu_node" output="screen">
-    <param name="port" type="string" value="/dev/ttyUSB0" />
-    <param name="baudrate" type="int" value="115200" />
-  </node>
+  <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link" args="0 0 0 0 0 0 camera_color_frame base_link 10" />
 
   <arg name="connect" default="usb"/>
 
-    <node respawn="true" pkg="joy" type="joy_node" name="ps4_joy" >
-        <param name="dev" type="string" value="/dev/input/js0" />
-        <param name="deadzone" value="0.12" />
-    </node>
-
-    <node name="kubo_joy" pkg="kubo_joy" type="kubo_joy" respawn="true" output="screen"/>
-        <param name="connect" type = "string" value="$(arg connect)"/>
 </launch>
