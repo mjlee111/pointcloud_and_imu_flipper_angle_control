@@ -55,8 +55,8 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.6, 0.2, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, -1.6808, 0, 0);
   marker(FLIPPER_FL, FL_marker, FL_xyz);
   marker(FLIPPER_FR, FR_marker, FR_xyz);
-  float filtered_FL = MAF(atan_FL, FLIPPER_FL) - imu_roll * 0.5 - imu_pitch * 0.5;
-  float filtered_FR = MAF(atan_FR, FLIPPER_FR) + imu_roll * 0.5 - imu_pitch + 0.5;
+  float filtered_FL = MAF(atan_FL, FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
+  float filtered_FR = MAF(atan_FR, FLIPPER_FR) + imu_roll * 0.5 + imu_pitch + 0.5;
   flipper_front(filtered_FL, filtered_FR);
   //cout << "CFL :" << atan_FL << " CFR :" << atan_FR << " ";
   //cout << "FL : " << filtered_FL << " FR : " << filtered_FR << endl;
@@ -68,8 +68,8 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.4,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
-  float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 + imu_pitch * 0.5;
-  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + imu_roll * 0.5 + imu_pitch * 0.5;
+  float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 - imu_pitch * 0.5;
+  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + imu_roll * 0.5 - imu_pitch * 0.5;
   flipper_back(filtered_BL, filtered_BR);
   //cout << "CBL :" << atan_BL << " CBR :" << atan_BR << " " << endl;
   //cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
@@ -89,7 +89,7 @@ void imu_callback(const sensor_msgs::Imu input_imu)
   imu_roll = toDEG(angles.pitch);
   imu_yaw = toDEG(angles.yaw);
 
-  cout << imu_roll << " / " << imu_pitch << endl; 
+  //cout << imu_roll << " / " << imu_pitch << endl; 
 }
 
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
