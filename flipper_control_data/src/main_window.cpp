@@ -19,58 +19,65 @@
 ** Namespaces
 *****************************************************************************/
 
-namespace flipper_control_data {
-
-using namespace Qt;
-using namespace std;
-/*****************************************************************************
-** Implementation [MainWindow]
-*****************************************************************************/
-
-MainWindow::MainWindow(int argc, char** argv, QWidget *parent)
-	: QMainWindow(parent)
-	, qnode(argc,argv)
+namespace flipper_control_data
 {
-	ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
-  	qnode.init();
-	setWindowIcon(QIcon(":/images/icon.png"));
-	QObject::connect(&qnode, SIGNAL(FL_signal()), this, SLOT(FL_slot()));
-	QObject::connect(&qnode, SIGNAL(FR_signal()), this, SLOT(FR_slot()));
-	QObject::connect(&qnode, SIGNAL(BL_signal()), this, SLOT(BL_slot()));
-	QObject::connect(&qnode, SIGNAL(BR_signal()), this, SLOT(BR_slot()));
-	QObject::connect(&qnode, SIGNAL(IMU_signal()), this, SLOT(IMU_slot()));
-}
 
-MainWindow::~MainWindow() {}
+	using namespace Qt;
+	using namespace std;
+	/*****************************************************************************
+	** Implementation [MainWindow]
+	*****************************************************************************/
 
-void MainWindow::FL_slot(void)
-{
-	ui.FL->setText(qnode.FLS);
-}
+	MainWindow::MainWindow(int argc, char **argv, QWidget *parent)
+		: QMainWindow(parent), qnode(argc, argv)
+	{
+		ui.setupUi(this); // Calling this incidentally connects all ui's triggers to on_...() callbacks in this class.
+		qnode.init();
+		setWindowIcon(QIcon(":/images/icon.png"));
+		QObject::connect(&qnode, SIGNAL(FL_signal()), this, SLOT(FL_slot()));
+		QObject::connect(&qnode, SIGNAL(FR_signal()), this, SLOT(FR_slot()));
+		QObject::connect(&qnode, SIGNAL(BL_signal()), this, SLOT(BL_slot()));
+		QObject::connect(&qnode, SIGNAL(BR_signal()), this, SLOT(BR_slot()));
+		QObject::connect(&qnode, SIGNAL(IMU_signal()), this, SLOT(IMU_slot()));
 
-void MainWindow::FR_slot(void)
-{
-	ui.FR->setText(qnode.FRS);
-}
+		renderPanel_ = new rviz::RenderPanel();
+		ui.rviz_layout->addWidget(renderPanel_);
+		rviz::VisualizationManager* manager = new rviz::VisualizationManager(renderPanel_);
+		renderPanel_->initialize(manager, manager->getSceneManager());
+		manager->initialize();
+		manager->load("/home/robit/mj_ws/src/pointcloud_and_imu_flipper_angle_control/realsense_filter/rviz/realsense_flipper.rviz")
 
-void MainWindow::BL_slot(void)
-{
-	ui.BL->setText(qnode.BLS);
-}
+	}
 
-void MainWindow::BR_slot(void)
-{
-	ui.BR->setText(qnode.BRS);
-}
+	MainWindow::~MainWindow() {}
 
-void MainWindow::IMU_slot(void)
-{
-	ui.roll->setText(QString::number(qnode.imu_roll));
-	ui.pitch->setText(QString::number(qnode.imu_pitch));
-}
-/*****************************************************************************
-** Implementation [Slots]
-*****************************************************************************/
+	void MainWindow::FL_slot(void)
+	{
+		ui.FL->setText(qnode.FLS);
+	}
 
-}  // namespace flipper_control_data
+	void MainWindow::FR_slot(void)
+	{
+		ui.FR->setText(qnode.FRS);
+	}
 
+	void MainWindow::BL_slot(void)
+	{
+		ui.BL->setText(qnode.BLS);
+	}
+
+	void MainWindow::BR_slot(void)
+	{
+		ui.BR->setText(qnode.BRS);
+	}
+
+	void MainWindow::IMU_slot(void)
+	{
+		ui.roll->setText(QString::number(qnode.imu_roll));
+		ui.pitch->setText(QString::number(qnode.imu_pitch));
+	}
+	/*****************************************************************************
+	** Implementation [Slots]
+	*****************************************************************************/
+
+} // namespace flipper_control_data

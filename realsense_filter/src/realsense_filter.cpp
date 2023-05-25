@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   target_angle_BL = n.advertise<std_msgs::Float64>("/target_flipper_BL", 10);
   target_angle_BR = n.advertise<std_msgs::Float64>("/target_flipper_BR", 10);
 
-  ros::Rate loop_rate(5);
+  ros::Rate loop_rate(10);
   while(ros::ok())
   {
     ros::spinOnce();
@@ -68,8 +68,8 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.4,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
-  float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 - imu_pitch * 0.5;
-  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + imu_roll * 0.5 - imu_pitch * 0.5;
+  float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 - imu_pitch * 0.5 - 5;
+  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + imu_roll * 0.5 - imu_pitch * 0.5 - 5;
   flipper_back(filtered_BL, filtered_BR);
   //cout << "CBL :" << atan_BL << " CBR :" << atan_BR << " " << endl;
   //cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
