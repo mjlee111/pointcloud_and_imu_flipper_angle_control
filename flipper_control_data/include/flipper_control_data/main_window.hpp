@@ -16,10 +16,6 @@
 #include "ui_main_window.h"
 #include "qnode.hpp"
 #include <QString>
-#include <rviz/render_panel.h>
-#include <rviz/display.h>
-#include <rviz/visualization_manager.h>
-#include <rviz/config.h>
 
 // #include <rviz/ros_node_abstraction.h>
 /*****************************************************************************
@@ -40,19 +36,6 @@ Q_OBJECT
 public:
 	MainWindow(int argc, char** argv, QWidget *parent = 0);
 	~MainWindow();
-
-	rviz::RenderPanel* renderPanel_;
-//	rviz::Display* pcl_raw_F;
-//	rviz::Display* pcl_raw_B;
-//	rviz::Display* pcl_FL;
-//	rviz::Display* pcl_FR;
-//	rviz::Display* pcl_BL;
-//	rviz::Display* pcl_BR;
-//	rviz::Display* marker_FL;
-//	rviz::Display* marker_FR;
-//	rviz::Display* marker_BL;
-//	rviz::Display* marker_BR;
-	
 
 public Q_SLOTS:
 	void FL_slot(void);

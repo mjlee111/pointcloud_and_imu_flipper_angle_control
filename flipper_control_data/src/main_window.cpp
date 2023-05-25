@@ -40,13 +40,6 @@ namespace flipper_control_data
 		QObject::connect(&qnode, SIGNAL(BR_signal()), this, SLOT(BR_slot()));
 		QObject::connect(&qnode, SIGNAL(IMU_signal()), this, SLOT(IMU_slot()));
 
-		renderPanel_ = new rviz::RenderPanel();
-		ui.rviz_layout->addWidget(renderPanel_);
-		rviz::VisualizationManager* manager = new rviz::VisualizationManager(renderPanel_);
-		renderPanel_->initialize(manager, manager->getSceneManager());
-		manager->initialize();
-		manager->load("/home/robit/mj_ws/src/pointcloud_and_imu_flipper_angle_control/realsense_filter/rviz/realsense_flipper.rviz")
-
 	}
 
 	MainWindow::~MainWindow() {}
