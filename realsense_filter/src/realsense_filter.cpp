@@ -55,10 +55,10 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.6, 0.2, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, -1.6808, 0, 0);
   marker(FLIPPER_FL, FL_marker, FL_xyz);
   marker(FLIPPER_FR, FR_marker, FR_xyz);
-  float filtered_FL = MAF(atan_FL, FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
-  float filtered_FR = MAF(atan_FR, FLIPPER_FR) + imu_roll * 0.5 + imu_pitch + 0.5;
+  float filtered_FL = MAF(atan_data , FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
+  float filtered_FR = MAF(atan_data , FLIPPER_FR) + imu_roll * 0.5 + imu_pitch + 0.5;
   flipper_front(filtered_FL, filtered_FR);
-  //cout << "CFL :" << atan_FL << " CFR :" << atan_FR << " ";
+  //cout << "CFL :" << atan_data[0]  << " CFR :" << atan_data[1]  << " ";
   //cout << "FL : " << filtered_FL << " FR : " << filtered_FR << endl;
 }
 
@@ -68,8 +68,8 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
-  float filtered_BL = MAF(atan_BL, FLIPPER_BL) + IMU_DATA_RELIANCE*(-(imu_roll * 0.5)-(imu_pitch * 0.5));
-  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + IMU_DATA_RELIANCE*((imu_roll * 0.5)-(imu_pitch * 0.5));
+  float filtered_BL = MAF(atan_data , FLIPPER_BL) + IMU_DATA_RELIANCE*(-(imu_roll * 0.5)-(imu_pitch * 0.5));
+  float filtered_BR = MAF(atan_data , FLIPPER_BR) + IMU_DATA_RELIANCE*((imu_roll * 0.5)-(imu_pitch * 0.5));
   if(imu_roll*0.5+imu_pitch*0.5 < 0)
   {
     filtered_BL -= ANGLE_POS_SUM;
@@ -80,8 +80,10 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
     filtered_BL += ANGLE_POS_SUM;
     filtered_BR += ANGLE_POS_SUM;
   }
+  if(max_z_cnt[FLIPPER_BL] <= 60) filtered_BL = 90;
+  if(max_z_cnt[FLIPPER_BR] <= 60) filtered_BR = 90;
   flipper_back(filtered_BL, filtered_BR);
-  //cout << "CBL :" << atan_BL << " CBR :" << atan_BR << " " << endl;
+  //cout << "CBL :" << atan_data[2]  << " CBR :" << atan_data[3]  << " " << endl;
   //cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
 }
 
@@ -198,7 +200,7 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   return;
 }
 
-double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
+void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
 {
   PointCloud::Ptr cloud(new PointCloud);
   pcl::fromROSMsg(*cloud_msg, *cloud);
@@ -220,9 +222,12 @@ double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
   float angle = atan(tan);
   angle = angle*180/M_PI;
 
+  if(max_z > 10) max_z_cnt[flipper] ++;
+  else if(max_z <= 10) max_z_cnt[flipper] = 0;
+
   if(flipper == FLIPPER_FL)
   {
-    atan_FL = angle;
+    atan_data[0]  = angle;
     FL_xyz[0] = x_of_max_z;
     FL_xyz[1] = y_of_max_z;
     FL_xyz[2] = max_z;
@@ -231,7 +236,7 @@ double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
   }
   else if(flipper == FLIPPER_FR) 
   {
-    atan_FR = angle;
+    atan_data[1]  = angle;
     FR_xyz[0] = x_of_max_z;
     FR_xyz[1] = y_of_max_z;
     FR_xyz[2] = max_z;
@@ -240,7 +245,7 @@ double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
   }
   else if(flipper == FLIPPER_BL) 
   {
-    atan_BL = -angle;
+    atan_data[2]  = -angle;
     BL_xyz[0] = x_of_max_z;
     BL_xyz[1] = y_of_max_z;
     BL_xyz[2] = max_z;
@@ -249,14 +254,14 @@ double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
   }
   else if(flipper == FLIPPER_BR) 
   {
-    atan_BR = -angle;
+    atan_data[3]  = -angle;
     BR_xyz[0] = x_of_max_z;
     BR_xyz[1] = y_of_max_z;
     BR_xyz[2] = max_z;
     target_BR_msg.data = angle;
     target_angle_BR.publish(target_BR_msg);
   }
-  return max_z;
+  return;
 }
 
 void marker(int flipper, const ros::Publisher pub,  float input_float[3])
@@ -266,13 +271,10 @@ void marker(int flipper, const ros::Publisher pub,  float input_float[3])
   line.header.stamp = ros::Time::now();
   line.ns = "line";
   line.id = 0;
-  line.type = visualization_msgs::Marker::LINE_STRIP; // Set the type of the marker to a line strip (i.e. a series of connected line segments)
-  line.action = visualization_msgs::Marker::ADD; // Set the action of the marker to add it to the display
-  line.scale.x = 0.01; // Set the width of the line segments
-
-  // Set the start and end points of the line
+  line.type = visualization_msgs::Marker::LINE_STRIP; 
+  line.action = visualization_msgs::Marker::ADD; 
+  line.scale.x = 0.01;
   geometry_msgs::Point p1, p2;
-
   if(flipper == FLIPPER_FL || flipper == FLIPPER_BL) p1.x = -0.1;
   else if(flipper == FLIPPER_FR || flipper == FLIPPER_BR) p1.x = 0.1;
   p1.y = 0;
@@ -282,8 +284,6 @@ void marker(int flipper, const ros::Publisher pub,  float input_float[3])
   p2.z = input_float[2];
   line.points.push_back(p2);
   line.points.push_back(p1);
-
-  // Set the color of the marker to green
   line.color.r = 0.0;
   line.color.g = 1.0;
   line.color.b = 0.0;
@@ -297,23 +297,19 @@ void flipper_back(float angle_L, float angle_R)
   if(angle_L < MIN_F_FLIPPER) angle_L = MIN_F_FLIPPER;
   if(angle_R > MAX_F_FLIPPER) angle_R = MAX_F_FLIPPER;
   if(angle_R < MIN_F_FLIPPER) angle_R = MIN_F_FLIPPER;
+  target_angle[2] = -angle_L * M_PI / 180;
+  target_angle[3] = angle_R * M_PI / 180;
 
-  // if(angle_L > 60 || (angle_L > -10 && angle_L < 3)) angle_L = 90;
-  // if(angle_R > 60 || (angle_R > -10 && angle_R < 3)) angle_R = 90;
+  if(now_angle[2] > target_angle[2]  + FLIPPER_SPEED_GAIN) now_angle[2] -= FLIPPER_SPEED_GAIN;
+  else if(now_angle[2] < target_angle[2]  - FLIPPER_SPEED_GAIN) now_angle[0] += FLIPPER_SPEED_GAIN;
+  else if((now_angle[2] > target_angle[2]  -FLIPPER_SPEED_GAIN)&&(now_angle[2]<target_angle[2]+FLIPPER_SPEED_GAIN)) now_angle[2]=target_angle[2];
 
-  target_BL= -angle_L * M_PI / 180;
-  target_BR= angle_R * M_PI / 180;
+  if(now_angle[3] > target_angle[3]  + FLIPPER_SPEED_GAIN) now_angle[3] -= FLIPPER_SPEED_GAIN;
+  else if(now_angle[3] < target_angle[3]  - FLIPPER_SPEED_GAIN) now_angle[3] += FLIPPER_SPEED_GAIN;
+  else if((now_angle[3] > target_angle[3]  -FLIPPER_SPEED_GAIN)&&(now_angle[3]<target_angle[3]+FLIPPER_SPEED_GAIN)) now_angle[3]=target_angle[3];
 
-  if(now_BL > target_BL + FLIPPER_SPEED_GAIN) now_BL -= FLIPPER_SPEED_GAIN;
-  else if(now_BL < target_BL - FLIPPER_SPEED_GAIN) now_FL += FLIPPER_SPEED_GAIN;
-  else if((now_BL > target_BL -FLIPPER_SPEED_GAIN)&&(now_BL<target_BL+FLIPPER_SPEED_GAIN)) now_BL=target_BL;
-
-  if(now_BR > target_BR + FLIPPER_SPEED_GAIN) now_BR -= FLIPPER_SPEED_GAIN;
-  else if(now_BR < target_BR - FLIPPER_SPEED_GAIN) now_BR += FLIPPER_SPEED_GAIN;
-  else if((now_BR > target_BR -FLIPPER_SPEED_GAIN)&&(now_BR<target_BR+FLIPPER_SPEED_GAIN)) now_BR=target_BR;
-
-  BL.data = now_BL;
-  BR.data = now_BR;
+  BL.data = now_angle[2];
+  BR.data = now_angle[3];
   BL_pub.publish(BR);
   BR_pub.publish(BL);
   angle_BL.publish(BR);
@@ -326,88 +322,33 @@ void flipper_front(float angle_L, float angle_R)
   if(angle_L < MIN_F_FLIPPER) angle_L = MIN_F_FLIPPER;
   if(angle_R > MAX_F_FLIPPER) angle_R = MAX_F_FLIPPER;
   if(angle_R < MIN_F_FLIPPER) angle_R = MIN_F_FLIPPER;
+  target_angle[0] = angle_L * M_PI / 180;
+  target_angle[1] = -angle_R * M_PI / 180;
 
-  // if(angle_L > 60 || (angle_L > -10 && angle_L < 5)) angle_L = 120;
-  // if(angle_R > 60 || (angle_R > -10 && angle_R < 5)) angle_R = 120;
+  if(now_angle[0] > target_angle[0] + FLIPPER_SPEED_GAIN) now_angle[0] -= FLIPPER_SPEED_GAIN;
+  else if(now_angle[0] < target_angle[0] - FLIPPER_SPEED_GAIN) now_angle[0] += FLIPPER_SPEED_GAIN;
+  else if((now_angle[0] > target_angle[0] -FLIPPER_SPEED_GAIN)&&(now_angle[0]<target_angle[0]+FLIPPER_SPEED_GAIN)) now_angle[0]=target_angle[0];
 
-  target_FL= angle_L * M_PI / 180;
-  target_FR= -angle_R * M_PI / 180;
+  if(now_angle[1] > target_angle[1] + FLIPPER_SPEED_GAIN) now_angle[1] -= FLIPPER_SPEED_GAIN;
+  else if(now_angle[1] < target_angle[1] - FLIPPER_SPEED_GAIN) now_angle[1] += FLIPPER_SPEED_GAIN;
+  else if((now_angle[1] > target_angle[1] -FLIPPER_SPEED_GAIN)&&(now_angle[1]<target_angle[1]+FLIPPER_SPEED_GAIN)) now_angle[1]=target_angle[1];
 
-  if(now_FL > target_FL + FLIPPER_SPEED_GAIN) now_FL -= FLIPPER_SPEED_GAIN;
-  else if(now_FL < target_FL - FLIPPER_SPEED_GAIN) now_FL += FLIPPER_SPEED_GAIN;
-  else if((now_FL > target_FL -FLIPPER_SPEED_GAIN)&&(now_FL<target_FL+FLIPPER_SPEED_GAIN)) now_FL=target_FL;
-
-  if(now_FR > target_FR + FLIPPER_SPEED_GAIN) now_FR -= FLIPPER_SPEED_GAIN;
-  else if(now_FR < target_FR - FLIPPER_SPEED_GAIN) now_FR += FLIPPER_SPEED_GAIN;
-  else if((now_FR > target_FR -FLIPPER_SPEED_GAIN)&&(now_FR<target_FR+FLIPPER_SPEED_GAIN)) now_FR=target_FR;
-
-  FL.data = now_FL;
-  FR.data = now_FR;
+  FL.data = now_angle[0];
+  FR.data = now_angle[1];
   FL_pub.publish(FR);
   FR_pub.publish(FL);
   angle_FL.publish(FR);
   angle_FR.publish(FL);
 }
 
-float MAF(float input, int flipper)
+float MAF(float *input, int flipper)
 {
-  if(flipper == FLIPPER_FL)
-  {
-    maf_input_array_FL[maf_index_FL] = input;
-    maf_index_FL ++;
-    if(maf_index_FL >= MAF_MASK_SIZE)maf_index_FL = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += maf_input_array_FL[i];
-    return sum/MAF_MASK_SIZE;
-  }
-
-  else if(flipper == FLIPPER_FR)
-  {
-    maf_input_array_FR[maf_index_FR] = input;
-    maf_index_FR ++;
-    if(maf_index_FR >= MAF_MASK_SIZE)maf_index_FR = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += maf_input_array_FR[i];
-    return sum/MAF_MASK_SIZE;
-  }
-
-  else if(flipper == FLIPPER_BL)
-  {
-    maf_input_array_BL[maf_index_BL] = input;
-    maf_index_BL ++;
-    if(maf_index_BL >= MAF_MASK_SIZE)maf_index_BL = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += maf_input_array_BL[i];
-    return sum/MAF_MASK_SIZE;
-  }
-
-  else if(flipper == FLIPPER_BR)
-  {
-    maf_input_array_BR[maf_index_BR] = input;
-    maf_index_BR ++;
-    if(maf_index_BR >= MAF_MASK_SIZE)maf_index_BR = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += maf_input_array_BR[i];
-    return sum/MAF_MASK_SIZE;
-  }
-  else if(flipper == ROLL)
-  {
-    imu_roll_MAF[maf_index_roll] = input;
-    maf_index_roll ++;
-    if(maf_index_roll >= MAF_MASK_SIZE)maf_index_roll = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += imu_roll_MAF[i];
-    return sum/MAF_MASK_SIZE;
-  }
-  else
-  {
-    imu_pitch_MAF[maf_index_pitch] = input;
-    maf_index_pitch ++;
-    if(maf_index_pitch >= MAF_MASK_SIZE)maf_index_pitch = 0;
-    float sum = 0;
-    for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += imu_pitch_MAF[i];
-    return sum/MAF_MASK_SIZE;
-  }
+  MAF_input[flipper][maf_index[flipper]] = input[flipper];
+  maf_index[flipper] ++;
+  if(maf_index[flipper] >= MAF_MASK_SIZE) maf_index[flipper] = 0;
+  float sum = 0;
+  for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += MAF_input[flipper][i];
+  return sum/MAF_MASK_SIZE;
 }
 
 float toRAD(float deg)

@@ -28,9 +28,9 @@
 
 #define FLIPPER_SPEED_GAIN 0.05
 #define MAX_F_FLIPPER 130
-#define MIN_F_FLIPPER -30
+#define MIN_F_FLIPPER -90
 #define MAX_B_FLIPPER 130
-#define MIN_B_FLIPPER -30
+#define MIN_B_FLIPPER -90
 
 #define FLIPPER_FL 1
 #define FLIPPER_FR 2
@@ -58,7 +58,7 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
                   float x, float y, float z, float deg_p, float deg_y, float deg_r);
 
-double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper);
+void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper);
 
 void marker(int flipper, const ros::Publisher pub,  float input_float[3]);
 
@@ -66,7 +66,7 @@ void flipper_front(float angle_L, float angle_R);
 
 void flipper_back(float angle_L, float angle_R);
 
-float MAF(float input, int flipper);
+float MAF(float input[], int flipper);
 
 float toRAD(float deg);
 
@@ -117,37 +117,16 @@ float FR_xyz[3] = {0, };
 float BL_xyz[3] = {0, };
 float BR_xyz[3] = {0, };
 
-float atan_FL;
-float atan_FR;
-float atan_BL;
-float atan_BR;
+float atan_data[4] = {0, };
 
-float now_FL;
-float now_FR;
-float now_BL;
-float now_BR;
+float now_angle[4] = {0, };
 
-float target_FL;
-float target_FR;
-float target_BL;
-float target_BR;
+float target_angle[4] = {0, };
 
 float max_z_cnt[4] = {0, };
 
-float maf_input_array_FL[MAF_MASK_SIZE] = {0,};
-int maf_index_FL = 0;
-float maf_input_array_FR[MAF_MASK_SIZE] = {0,};
-int maf_index_FR = 0;
-float maf_input_array_BL[MAF_MASK_SIZE] = {0,};
-int maf_index_BL = 0;
-float maf_input_array_BR[MAF_MASK_SIZE] = {0,};
-int maf_index_BR = 0;
-
-float imu_roll_MAF[MAF_MASK_SIZE] = {0,};
-int maf_index_roll = 0;
-
-float imu_pitch_MAF[MAF_MASK_SIZE] = {0,};
-int maf_index_pitch = 0;
+float MAF_input[6][MAF_MASK_SIZE];
+int maf_index[6] = {0, };
 
 struct Quaternion {
     float w;
