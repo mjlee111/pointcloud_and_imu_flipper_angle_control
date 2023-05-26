@@ -39,7 +39,6 @@ namespace flipper_control_data
 		QObject::connect(&qnode, SIGNAL(BL_signal()), this, SLOT(BL_slot()));
 		QObject::connect(&qnode, SIGNAL(BR_signal()), this, SLOT(BR_slot()));
 		QObject::connect(&qnode, SIGNAL(IMU_signal()), this, SLOT(IMU_slot()));
-
 	}
 
 	MainWindow::~MainWindow() {}

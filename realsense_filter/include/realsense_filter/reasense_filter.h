@@ -39,7 +39,9 @@
 #define ROLL 5
 #define PITCH 6
 
-#define MAF_MASK_SIZE 30
+#define MAF_MASK_SIZE 25
+#define IMU_DATA_RELIANCE 0.9
+#define ANGLE_POS_SUM 8
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -55,8 +57,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
                   float x_min, float x_max, float y_min, float y_max, float z_min, float z_max,
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
                   float x, float y, float z, float deg_p, float deg_y, float deg_r);
-
-double ransac(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg);
 
 double max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper);
 
@@ -117,7 +117,6 @@ float FR_xyz[3] = {0, };
 float BL_xyz[3] = {0, };
 float BR_xyz[3] = {0, };
 
-
 float atan_FL;
 float atan_FR;
 float atan_BL;
@@ -132,6 +131,8 @@ float target_FL;
 float target_FR;
 float target_BL;
 float target_BR;
+
+float max_z_cnt[4] = {0, };
 
 float maf_input_array_FL[MAF_MASK_SIZE] = {0,};
 int maf_index_FL = 0;

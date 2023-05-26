@@ -40,7 +40,7 @@ int main(int argc, char **argv)
   target_angle_BL = n.advertise<std_msgs::Float64>("/target_flipper_BL", 10);
   target_angle_BR = n.advertise<std_msgs::Float64>("/target_flipper_BR", 10);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(20);
   while(ros::ok())
   {
     ros::spinOnce();
@@ -64,12 +64,22 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 
 void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05 , 0.15, -0.2, 0.4, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
-  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.4,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.25, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05 , 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
-  float filtered_BL = MAF(atan_BL, FLIPPER_BL) - imu_roll * 0.5 - imu_pitch * 0.5 - 5;
-  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + imu_roll * 0.5 - imu_pitch * 0.5 - 5;
+  float filtered_BL = MAF(atan_BL, FLIPPER_BL) + IMU_DATA_RELIANCE*(-(imu_roll * 0.5)-(imu_pitch * 0.5));
+  float filtered_BR = MAF(atan_BR, FLIPPER_BR) + IMU_DATA_RELIANCE*((imu_roll * 0.5)-(imu_pitch * 0.5));
+  if(imu_roll*0.5+imu_pitch*0.5 < 0)
+  {
+    filtered_BL -= ANGLE_POS_SUM;
+    filtered_BR -= ANGLE_POS_SUM;
+  }
+  else if(imu_roll*0.5+imu_pitch*0.5 >= 0)
+  {
+    filtered_BL += ANGLE_POS_SUM;
+    filtered_BR += ANGLE_POS_SUM;
+  }
   flipper_back(filtered_BL, filtered_BR);
   //cout << "CBL :" << atan_BL << " CBR :" << atan_BR << " " << endl;
   //cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
@@ -263,8 +273,8 @@ void marker(int flipper, const ros::Publisher pub,  float input_float[3])
   // Set the start and end points of the line
   geometry_msgs::Point p1, p2;
 
-  if(flipper == FLIPPER_FL || flipper == FLIPPER_BL) p1.x = -0.75-0.15;
-  else if(flipper == FLIPPER_FR || flipper == FLIPPER_BR) p1.x = 0.75-0.15;
+  if(flipper == FLIPPER_FL || flipper == FLIPPER_BL) p1.x = -0.1;
+  else if(flipper == FLIPPER_FR || flipper == FLIPPER_BR) p1.x = 0.1;
   p1.y = 0;
   p1.z = 0;
   p2.x = input_float[0];
@@ -408,40 +418,6 @@ float toRAD(float deg)
 float toDEG(float rad)
 {
   return rad * 180 / M_PI;
-}
-
-double ransac(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
-{
-  // Convert the input point cloud message to a PointCloudXYZ object
-  pcl::PCLPointCloud2 pcl_pc2;
-  pcl_conversions::toPCL(*input_cloud_msg, pcl_pc2);
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::fromPCLPointCloud2(pcl_pc2, *cloud);
-
-  // Define the model to represent the YZ plane
-  pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
-  coefficients->values.resize(3);
-  coefficients->values[0] = 0; // a = 0
-  coefficients->values[1] = 1; // b = 1
-  coefficients->values[2] = 0; // c = 0
-
-  // Create the SAC segmentation object and set the parameters
-  pcl::SACSegmentation<pcl::PointXYZ> seg;
-  seg.setOptimizeCoefficients(true);
-  seg.setModelType(pcl::SACMODEL_PLANE);
-  seg.setMethodType(pcl::SAC_RANSAC);
-  seg.setMaxIterations(10000);
-  seg.setDistanceThreshold(0.01);
-
-  // Segment the largest planar component from the cloud
-  pcl::ExtractIndices<pcl::PointXYZ> extract;
-  pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
-  seg.setInputCloud(cloud);
-  seg.segment(*inliers, *coefficients);
-
-  // Calculate the YZ inclination
-  double inclination = atan2(coefficients->values[0], coefficients->values[2]) * 180.0 / M_PI;
-  return inclination;
 }
 
 EulerAngles quaternionToEulerAngles(const Quaternion& q)

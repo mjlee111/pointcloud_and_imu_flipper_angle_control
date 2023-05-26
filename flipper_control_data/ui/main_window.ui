@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>865</width>
-    <height>559</height>
+    <width>192</width>
+    <height>151</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -218,17 +218,6 @@
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
-      </widget>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>190</x>
-         <y>0</y>
-         <width>661</width>
-         <height>541</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="rviz_layout"/>
       </widget>
      </widget>
     </item>
