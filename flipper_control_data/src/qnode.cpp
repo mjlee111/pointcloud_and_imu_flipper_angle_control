@@ -54,10 +54,10 @@ namespace flipper_control_data
     // ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
 
-    flipper_FL = n.subscribe("/target_flipper_FL", 10, &QNode::flipper_fl_callback, this);
-    flipper_FR = n.subscribe("/target_flipper_FR", 10, &QNode::flipper_fr_callback, this);
-    flipper_BL = n.subscribe("/target_flipper_BL", 10, &QNode::flipper_bl_callback, this);
-    flipper_BR = n.subscribe("/target_flipper_BR", 10, &QNode::flipper_br_callback, this);
+    flipper_FL = n.subscribe("/flipper_FL", 10, &QNode::flipper_fl_callback, this);
+    flipper_FR = n.subscribe("/flipper_FR", 10, &QNode::flipper_fr_callback, this);
+    flipper_BL = n.subscribe("/flipper_BL", 10, &QNode::flipper_bl_callback, this);
+    flipper_BR = n.subscribe("/flipper_BR", 10, &QNode::flipper_br_callback, this);
 
     IMU = n.subscribe("/imu", 10, &QNode::imu_callback, this);
     cout << "START" << endl;
@@ -80,25 +80,25 @@ namespace flipper_control_data
 
   void QNode::flipper_fl_callback(const std_msgs::Float64 &input)
   {
-    FLS = QString::number(input.data);
+    FLS = QString::number(toDEG(input.data));
     Q_EMIT FL_signal();
   }
 
   void QNode::flipper_fr_callback(const std_msgs::Float64 &input)
   {
-    FRS = QString::number(input.data);
+    FRS = QString::number(toDEG(input.data));
     Q_EMIT FR_signal();
   }
 
   void QNode::flipper_bl_callback(const std_msgs::Float64 &input)
   {
-    BLS = QString::number(input.data);
+    BLS = QString::number(toDEG(input.data));
     Q_EMIT BL_signal();
   }
 
   void QNode::flipper_br_callback(const std_msgs::Float64 &input)
   {
-    BRS = QString::number(input.data);
+    BRS = QString::number(toDEG(input.data));
     Q_EMIT BR_signal();
   }
 

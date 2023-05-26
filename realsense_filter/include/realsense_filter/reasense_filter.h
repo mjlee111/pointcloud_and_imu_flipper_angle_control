@@ -39,7 +39,7 @@
 #define ROLL 5
 #define PITCH 6
 
-#define MAF_MASK_SIZE 25
+#define MAF_MASK_SIZE 30
 #define IMU_DATA_RELIANCE 0.9
 #define ANGLE_POS_SUM 8
 
@@ -87,30 +87,15 @@ ros::Publisher BR_point_pub;
 ros::Publisher BL_marker;
 ros::Publisher BR_marker;
 
-ros::Publisher FL_pub;
-ros::Publisher FR_pub;
-ros::Publisher BL_pub;
-ros::Publisher BR_pub;
-
 ros::Publisher angle_FL;
 ros::Publisher angle_FR;
 ros::Publisher angle_BL;
 ros::Publisher angle_BR;
 
-ros::Publisher target_angle_FL;
-ros::Publisher target_angle_FR;
-ros::Publisher target_angle_BL;
-ros::Publisher target_angle_BR;
-
 std_msgs::Float64 FL;
 std_msgs::Float64 FR;
 std_msgs::Float64 BL;
 std_msgs::Float64 BR;
-
-std_msgs::Float64 target_FL_msg;
-std_msgs::Float64 target_FR_msg;
-std_msgs::Float64 target_BL_msg;
-std_msgs::Float64 target_BR_msg;
 
 float FL_xyz[3] = {0, };
 float FR_xyz[3] = {0, };

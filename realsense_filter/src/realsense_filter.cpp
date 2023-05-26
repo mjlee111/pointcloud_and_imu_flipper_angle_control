@@ -1,7 +1,6 @@
 #include "../include/realsense_filter/reasense_filter.h"
 
-
-//pcl
+// pcl
 using namespace std;
 
 int main(int argc, char **argv)
@@ -25,23 +24,13 @@ int main(int argc, char **argv)
   BL_marker = n.advertise<visualization_msgs::Marker>("BL_marker", 10);
   BR_marker = n.advertise<visualization_msgs::Marker>("BR_marker", 10);
 
-  FL_pub = n.advertise<std_msgs::Float64>("/flipper_joint_FL_position_controller/command",10);
-  FR_pub = n.advertise<std_msgs::Float64>("/flipper_joint_FR_position_controller/command",10);
-  BL_pub = n.advertise<std_msgs::Float64>("/flipper_joint_BL_position_controller/command",10);
-  BR_pub = n.advertise<std_msgs::Float64>("/flipper_joint_BR_position_controller/command",10);
-
   angle_FL = n.advertise<std_msgs::Float64>("/flipper_FL", 10);
   angle_FR = n.advertise<std_msgs::Float64>("/flipper_FR", 10);
   angle_BL = n.advertise<std_msgs::Float64>("/flipper_BL", 10);
   angle_BR = n.advertise<std_msgs::Float64>("/flipper_BR", 10);
 
-  target_angle_FL = n.advertise<std_msgs::Float64>("/target_flipper_FL", 10);
-  target_angle_FR = n.advertise<std_msgs::Float64>("/target_flipper_FR", 10);
-  target_angle_BL = n.advertise<std_msgs::Float64>("/target_flipper_BL", 10);
-  target_angle_BR = n.advertise<std_msgs::Float64>("/target_flipper_BR", 10);
-
   ros::Rate loop_rate(20);
-  while(ros::ok())
+  while (ros::ok())
   {
     ros::spinOnce();
     loop_rate.sleep();
@@ -55,36 +44,38 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.6, 0.2, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, -1.6808, 0, 0);
   marker(FLIPPER_FL, FL_marker, FL_xyz);
   marker(FLIPPER_FR, FR_marker, FR_xyz);
-  float filtered_FL = MAF(atan_data , FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
-  float filtered_FR = MAF(atan_data , FLIPPER_FR) + imu_roll * 0.5 + imu_pitch + 0.5;
+  float filtered_FL = MAF(atan_data, FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
+  float filtered_FR = MAF(atan_data, FLIPPER_FR) + imu_roll * 0.5 + imu_pitch + 0.5;
   flipper_front(filtered_FL, filtered_FR);
-  //cout << "CFL :" << atan_data[0]  << " CFR :" << atan_data[1]  << " ";
-  //cout << "FL : " << filtered_FL << " FR : " << filtered_FR << endl;
+  // cout << "CFL :" << atan_data[FLIPPER_FL]  << " CFR :" << atan_data[FLIPPER_FR]  << " ";
+  // cout << "FL : " << filtered_FL << " FR : " << filtered_FR << endl;
 }
 
 void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05 , 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
-  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8,-100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BL, input_cloud_msg, BL_point_pub, 0.05, 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
+  three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_xyz);
-  float filtered_BL = MAF(atan_data , FLIPPER_BL) + IMU_DATA_RELIANCE*(-(imu_roll * 0.5)-(imu_pitch * 0.5));
-  float filtered_BR = MAF(atan_data , FLIPPER_BR) + IMU_DATA_RELIANCE*((imu_roll * 0.5)-(imu_pitch * 0.5));
-  if(imu_roll*0.5+imu_pitch*0.5 < 0)
+  float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
+  float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
+  if (imu_roll * 0.5 + imu_pitch * 0.5 < 0)
   {
     filtered_BL -= ANGLE_POS_SUM;
     filtered_BR -= ANGLE_POS_SUM;
   }
-  else if(imu_roll*0.5+imu_pitch*0.5 >= 0)
+  else if (imu_roll * 0.5 + imu_pitch * 0.5 >= 0)
   {
     filtered_BL += ANGLE_POS_SUM;
     filtered_BR += ANGLE_POS_SUM;
   }
-  if(max_z_cnt[FLIPPER_BL] <= 60) filtered_BL = 90;
-  if(max_z_cnt[FLIPPER_BR] <= 60) filtered_BR = 90;
+  if (max_z_cnt[FLIPPER_BL] <= 60)
+    filtered_BL = 90;
+  if (max_z_cnt[FLIPPER_BR] <= 60)
+    filtered_BR = 90;
   flipper_back(filtered_BL, filtered_BR);
-  //cout << "CBL :" << atan_data[2]  << " CBR :" << atan_data[3]  << " " << endl;
-  //cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
+  // cout << "CBL :" << atan_data[FLIPPER_BL]  << " CBR :" << atan_data[FLIPPER_BR]  << " " << endl;
+  // cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
 }
 
 void imu_callback(const sensor_msgs::Imu input_imu)
@@ -101,7 +92,7 @@ void imu_callback(const sensor_msgs::Imu input_imu)
   imu_roll = toDEG(angles.pitch);
   imu_yaw = toDEG(angles.yaw);
 
-  //cout << imu_roll << " / " << imu_pitch << endl; 
+  // cout << imu_roll << " / " << imu_pitch << endl;
 }
 
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
@@ -122,7 +113,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_x(new pcl::PointCloud<pcl::PointXYZ>);
   pass_filter.filter(*filtered_cloud_x);
 
-  if(filtered_cloud_x->empty()) return;
+  if (filtered_cloud_x->empty())
+    return;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // passthrough Y : filtered_cloud_x -> filtered_cloud_y
@@ -136,7 +128,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_y(new pcl::PointCloud<pcl::PointXYZ>);
   pass_filter2.filter(*filtered_cloud_y);
 
-  if(filtered_cloud_y->empty()) return;
+  if (filtered_cloud_y->empty())
+    return;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // passthrough Z : filtered_cloud_y -> filtered_cloud_1
@@ -150,7 +143,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_1(new pcl::PointCloud<pcl::PointXYZ>);
   pass_filter3.filter(*filtered_cloud_1);
 
-  if(filtered_cloud_1->empty()) return;
+  if (filtered_cloud_1->empty())
+    return;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // voxel : filtered_cloud_1 -> filtered_cloud_2
@@ -162,7 +156,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud_2(new pcl::PointCloud<pcl::PointXYZ>);
   voxel_filter.filter(*filtered_cloud_2);
 
-  if(filtered_cloud_2->empty()) return;
+  if (filtered_cloud_2->empty())
+    return;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // outliner : filtered_cloud_2 -> three_filtered_cloud
@@ -174,7 +169,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::PointCloud<pcl::PointXYZ>::Ptr three_filtered_cloud(new pcl::PointCloud<pcl::PointXYZ>);
   outliner_filter.filter(*three_filtered_cloud);
 
-  if(three_filtered_cloud->empty()) return;
+  if (three_filtered_cloud->empty())
+    return;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // tf calculation : three_filtered_cloud -> transformed_cloud
@@ -187,7 +183,8 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   transform.rotate(Eigen::AngleAxisf(deg_r, Eigen::Vector3f::UnitZ()));
   pcl::transformPointCloud(*filtered_cloud_2, *transformed_cloud, transform);
 
-  if(transformed_cloud->empty()) return;
+  if (transformed_cloud->empty())
+    return;
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -200,7 +197,7 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   return;
 }
 
-void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
+void max_Z(const sensor_msgs::PointCloud2ConstPtr &cloud_msg, int flipper)
 {
   PointCloud::Ptr cloud(new PointCloud);
   pcl::fromROSMsg(*cloud_msg, *cloud);
@@ -209,7 +206,7 @@ void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
   float y_of_max_z = 0;
   float x_of_max_z = 0;
 
-  for (const auto& point : cloud->points)
+  for (const auto &point : cloud->points)
   {
     if (point.z > max_z)
     {
@@ -218,65 +215,61 @@ void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper)
       x_of_max_z = point.x;
     }
   }
-  float tan = max_z/y_of_max_z;
+  float tan = max_z / y_of_max_z;
   float angle = atan(tan);
-  angle = angle*180/M_PI;
+  angle = angle * 180 / M_PI;
 
-  if(max_z > 10) max_z_cnt[flipper] ++;
-  else if(max_z <= 10) max_z_cnt[flipper] = 0;
+  if (max_z > 10)
+    max_z_cnt[flipper]++;
+  else if (max_z <= 10)
+    max_z_cnt[flipper] = 0;
 
-  if(flipper == FLIPPER_FL)
+  if (flipper == FLIPPER_FL)
   {
-    atan_data[0]  = angle;
-    FL_xyz[0] = x_of_max_z;
-    FL_xyz[1] = y_of_max_z;
-    FL_xyz[2] = max_z;
-    target_FL_msg.data = angle;
-    target_angle_FL.publish(target_FL_msg);
+    atan_data[FLIPPER_FL] = angle;
+    FL_xyz[FLIPPER_FL] = x_of_max_z;
+    FL_xyz[FLIPPER_FR] = y_of_max_z;
+    FL_xyz[FLIPPER_BL] = max_z;
   }
-  else if(flipper == FLIPPER_FR) 
+  else if (flipper == FLIPPER_FR)
   {
-    atan_data[1]  = angle;
+    atan_data[FLIPPER_FR] = angle;
     FR_xyz[0] = x_of_max_z;
     FR_xyz[1] = y_of_max_z;
     FR_xyz[2] = max_z;
-    target_FR_msg.data = angle;
-    target_angle_FR.publish(target_FR_msg);
   }
-  else if(flipper == FLIPPER_BL) 
+  else if (flipper == FLIPPER_BL)
   {
-    atan_data[2]  = -angle;
+    atan_data[FLIPPER_BL] = -angle;
     BL_xyz[0] = x_of_max_z;
     BL_xyz[1] = y_of_max_z;
     BL_xyz[2] = max_z;
-    target_BL_msg.data = angle;
-    target_angle_BL.publish(target_BL_msg);
   }
-  else if(flipper == FLIPPER_BR) 
+  else if (flipper == FLIPPER_BR)
   {
-    atan_data[3]  = -angle;
+    atan_data[FLIPPER_BR] = -angle;
     BR_xyz[0] = x_of_max_z;
     BR_xyz[1] = y_of_max_z;
     BR_xyz[2] = max_z;
-    target_BR_msg.data = angle;
-    target_angle_BR.publish(target_BR_msg);
   }
   return;
 }
 
-void marker(int flipper, const ros::Publisher pub,  float input_float[3])
+void marker(int flipper, const ros::Publisher pub, float input_float[FLIPPER_BR])
 {
   visualization_msgs::Marker line;
   line.header.frame_id = "base_link";
   line.header.stamp = ros::Time::now();
   line.ns = "line";
   line.id = 0;
-  line.type = visualization_msgs::Marker::LINE_STRIP; 
-  line.action = visualization_msgs::Marker::ADD; 
+  line.type = visualization_msgs::Marker::LINE_STRIP;
+  line.action = visualization_msgs::Marker::ADD;
   line.scale.x = 0.01;
   geometry_msgs::Point p1, p2;
-  if(flipper == FLIPPER_FL || flipper == FLIPPER_BL) p1.x = -0.1;
-  else if(flipper == FLIPPER_FR || flipper == FLIPPER_BR) p1.x = 0.1;
+  if (flipper == FLIPPER_FL || flipper == FLIPPER_BL)
+    p1.x = -0.1;
+  else if (flipper == FLIPPER_FR || flipper == FLIPPER_BR)
+    p1.x = 0.1;
   p1.y = 0;
   p1.z = 0;
   p2.x = input_float[0];
@@ -293,50 +286,68 @@ void marker(int flipper, const ros::Publisher pub,  float input_float[3])
 
 void flipper_back(float angle_L, float angle_R)
 {
-  if(angle_L > MAX_F_FLIPPER) angle_L = MAX_F_FLIPPER;
-  if(angle_L < MIN_F_FLIPPER) angle_L = MIN_F_FLIPPER;
-  if(angle_R > MAX_F_FLIPPER) angle_R = MAX_F_FLIPPER;
-  if(angle_R < MIN_F_FLIPPER) angle_R = MIN_F_FLIPPER;
-  target_angle[2] = -angle_L * M_PI / 180;
-  target_angle[3] = angle_R * M_PI / 180;
+  if (angle_L > MAX_F_FLIPPER)
+    angle_L = MAX_F_FLIPPER;
+  if (angle_L < MIN_F_FLIPPER)
+    angle_L = MIN_F_FLIPPER;
 
-  if(now_angle[2] > target_angle[2]  + FLIPPER_SPEED_GAIN) now_angle[2] -= FLIPPER_SPEED_GAIN;
-  else if(now_angle[2] < target_angle[2]  - FLIPPER_SPEED_GAIN) now_angle[0] += FLIPPER_SPEED_GAIN;
-  else if((now_angle[2] > target_angle[2]  -FLIPPER_SPEED_GAIN)&&(now_angle[2]<target_angle[2]+FLIPPER_SPEED_GAIN)) now_angle[2]=target_angle[2];
+  if (angle_R > MAX_F_FLIPPER)
+    angle_R = MAX_F_FLIPPER;
+  if (angle_R < MIN_F_FLIPPER)
+    angle_R = MIN_F_FLIPPER;
 
-  if(now_angle[3] > target_angle[3]  + FLIPPER_SPEED_GAIN) now_angle[3] -= FLIPPER_SPEED_GAIN;
-  else if(now_angle[3] < target_angle[3]  - FLIPPER_SPEED_GAIN) now_angle[3] += FLIPPER_SPEED_GAIN;
-  else if((now_angle[3] > target_angle[3]  -FLIPPER_SPEED_GAIN)&&(now_angle[3]<target_angle[3]+FLIPPER_SPEED_GAIN)) now_angle[3]=target_angle[3];
+  target_angle[FLIPPER_BL] = -angle_L * M_PI / 180;
+  target_angle[FLIPPER_BR] = angle_R * M_PI / 180;
 
-  BL.data = now_angle[2];
-  BR.data = now_angle[3];
-  BL_pub.publish(BR);
-  BR_pub.publish(BL);
+  if (now_angle[FLIPPER_BL] > target_angle[FLIPPER_BL] + FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_BL] -= FLIPPER_SPEED_GAIN;
+  else if (now_angle[FLIPPER_BL] < target_angle[FLIPPER_BL] - FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_FL] += FLIPPER_SPEED_GAIN;
+  else if ((now_angle[FLIPPER_BL] > target_angle[FLIPPER_BL] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_BL] < target_angle[FLIPPER_BL] + FLIPPER_SPEED_GAIN))
+    now_angle[FLIPPER_BL] = target_angle[FLIPPER_BL];
+
+  if (now_angle[FLIPPER_BR] > target_angle[FLIPPER_BR] + FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_BR] -= FLIPPER_SPEED_GAIN;
+  else if (now_angle[FLIPPER_BR] < target_angle[FLIPPER_BR] - FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_BR] += FLIPPER_SPEED_GAIN;
+  else if ((now_angle[FLIPPER_BR] > target_angle[FLIPPER_BR] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_BR] < target_angle[FLIPPER_BR] + FLIPPER_SPEED_GAIN))
+    now_angle[FLIPPER_BR] = target_angle[FLIPPER_BR];
+
+  BL.data = now_angle[FLIPPER_BL];
+  BR.data = now_angle[FLIPPER_BR];
   angle_BL.publish(BR);
   angle_BR.publish(BL);
 }
 
 void flipper_front(float angle_L, float angle_R)
 {
-  if(angle_L > MAX_F_FLIPPER) angle_L = MAX_F_FLIPPER;
-  if(angle_L < MIN_F_FLIPPER) angle_L = MIN_F_FLIPPER;
-  if(angle_R > MAX_F_FLIPPER) angle_R = MAX_F_FLIPPER;
-  if(angle_R < MIN_F_FLIPPER) angle_R = MIN_F_FLIPPER;
-  target_angle[0] = angle_L * M_PI / 180;
-  target_angle[1] = -angle_R * M_PI / 180;
+  if (angle_L > MAX_F_FLIPPER)
+    angle_L = MAX_F_FLIPPER;
+  if (angle_L < MIN_F_FLIPPER)
+    angle_L = MIN_F_FLIPPER;
+  if (angle_R > MAX_F_FLIPPER)
+    angle_R = MAX_F_FLIPPER;
+  if (angle_R < MIN_F_FLIPPER)
+    angle_R = MIN_F_FLIPPER;
+  target_angle[FLIPPER_FL] = angle_L * M_PI / 180;
+  target_angle[FLIPPER_FR] = -angle_R * M_PI / 180;
 
-  if(now_angle[0] > target_angle[0] + FLIPPER_SPEED_GAIN) now_angle[0] -= FLIPPER_SPEED_GAIN;
-  else if(now_angle[0] < target_angle[0] - FLIPPER_SPEED_GAIN) now_angle[0] += FLIPPER_SPEED_GAIN;
-  else if((now_angle[0] > target_angle[0] -FLIPPER_SPEED_GAIN)&&(now_angle[0]<target_angle[0]+FLIPPER_SPEED_GAIN)) now_angle[0]=target_angle[0];
+  if (now_angle[FLIPPER_FL] > target_angle[FLIPPER_FL] + FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_FL] -= FLIPPER_SPEED_GAIN;
+  else if (now_angle[FLIPPER_FL] < target_angle[FLIPPER_FL] - FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_FL] += FLIPPER_SPEED_GAIN;
+  else if ((now_angle[FLIPPER_FL] > target_angle[FLIPPER_FL] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_FL] < target_angle[FLIPPER_FL] + FLIPPER_SPEED_GAIN))
+    now_angle[FLIPPER_FL] = target_angle[FLIPPER_FL];
 
-  if(now_angle[1] > target_angle[1] + FLIPPER_SPEED_GAIN) now_angle[1] -= FLIPPER_SPEED_GAIN;
-  else if(now_angle[1] < target_angle[1] - FLIPPER_SPEED_GAIN) now_angle[1] += FLIPPER_SPEED_GAIN;
-  else if((now_angle[1] > target_angle[1] -FLIPPER_SPEED_GAIN)&&(now_angle[1]<target_angle[1]+FLIPPER_SPEED_GAIN)) now_angle[1]=target_angle[1];
+  if (now_angle[FLIPPER_FR] > target_angle[FLIPPER_FR] + FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_FR] -= FLIPPER_SPEED_GAIN;
+  else if (now_angle[FLIPPER_FR] < target_angle[FLIPPER_FR] - FLIPPER_SPEED_GAIN)
+    now_angle[FLIPPER_FR] += FLIPPER_SPEED_GAIN;
+  else if ((now_angle[FLIPPER_FR] > target_angle[FLIPPER_FR] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_FR] < target_angle[FLIPPER_FR] + FLIPPER_SPEED_GAIN))
+    now_angle[FLIPPER_FR] = target_angle[FLIPPER_FR];
 
-  FL.data = now_angle[0];
-  FR.data = now_angle[1];
-  FL_pub.publish(FR);
-  FR_pub.publish(FL);
+  FL.data = now_angle[FLIPPER_FL];
+  FR.data = now_angle[FLIPPER_FR];
   angle_FL.publish(FR);
   angle_FR.publish(FL);
 }
@@ -344,11 +355,13 @@ void flipper_front(float angle_L, float angle_R)
 float MAF(float *input, int flipper)
 {
   MAF_input[flipper][maf_index[flipper]] = input[flipper];
-  maf_index[flipper] ++;
-  if(maf_index[flipper] >= MAF_MASK_SIZE) maf_index[flipper] = 0;
+  maf_index[flipper]++;
+  if (maf_index[flipper] >= MAF_MASK_SIZE)
+    maf_index[flipper] = 0;
   float sum = 0;
-  for(int i = 0 ; i < MAF_MASK_SIZE ; i++) sum += MAF_input[flipper][i];
-  return sum/MAF_MASK_SIZE;
+  for (int i = 0; i < MAF_MASK_SIZE; i++)
+    sum += MAF_input[flipper][i];
+  return sum / MAF_MASK_SIZE;
 }
 
 float toRAD(float deg)
@@ -361,23 +374,23 @@ float toDEG(float rad)
   return rad * 180 / M_PI;
 }
 
-EulerAngles quaternionToEulerAngles(const Quaternion& q)
+EulerAngles quaternionToEulerAngles(const Quaternion &q)
 {
   EulerAngles angles;
 
-    float sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
-    float cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
-    angles.roll = std::atan2(sinr_cosp, cosr_cosp);
+  float sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
+  float cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+  angles.roll = std::atan2(sinr_cosp, cosr_cosp);
 
-    float sinp = 2.0 * (q.w * q.y - q.z * q.x);
-    if (std::abs(sinp) >= 1.0)
-        angles.pitch = std::copysign(M_PI / 2.0, sinp); 
-    else
-        angles.pitch = std::asin(sinp);
+  float sinp = 2.0 * (q.w * q.y - q.z * q.x);
+  if (std::abs(sinp) >= 1.0)
+    angles.pitch = std::copysign(M_PI / 2.0, sinp);
+  else
+    angles.pitch = std::asin(sinp);
 
-    float siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
-    float cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
-    angles.yaw = std::atan2(siny_cosp, cosy_cosp);
+  float siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
+  float cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+  angles.yaw = std::atan2(siny_cosp, cosy_cosp);
 
-    return angles;
+  return angles;
 }
