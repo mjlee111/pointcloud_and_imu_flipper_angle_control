@@ -98,7 +98,7 @@ namespace flipper_control_data
 
   void QNode::flipper_br_callback(const std_msgs::Float64 &input)
   {
-    BRS = QString::number(toDEG(input.data));
+    BRS = QString::number(toDEG(-input.data));
     Q_EMIT BR_signal();
   }
 

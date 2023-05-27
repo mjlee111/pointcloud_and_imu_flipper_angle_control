@@ -32,16 +32,18 @@
 #define MAX_B_FLIPPER 130
 #define MIN_B_FLIPPER -90
 
-#define FLIPPER_FL 1
-#define FLIPPER_FR 2
-#define FLIPPER_BL 3
-#define FLIPPER_BR 4
-#define ROLL 5
-#define PITCH 6
+#define FLIPPER_FL 0
+#define FLIPPER_FR 1
+#define FLIPPER_BL 2
+#define FLIPPER_BR 3
+#define ROLL 4
+#define PITCH 5
 
 #define MAF_MASK_SIZE 30
 #define IMU_DATA_RELIANCE 0.9
 #define ANGLE_POS_SUM 8
+
+#define AUTO_FLIPPER_TRIGGER 60
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -60,7 +62,7 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
 
 void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper);
 
-void marker(int flipper, const ros::Publisher pub,  float input_float[3]);
+void marker(int flipper, const ros::Publisher pub, const ros::Publisher textpub, float input_float[3]);
 
 void flipper_front(float angle_L, float angle_R);
 
@@ -87,6 +89,11 @@ ros::Publisher BR_point_pub;
 ros::Publisher BL_marker;
 ros::Publisher BR_marker;
 
+ros::Publisher FL_marker_text;
+ros::Publisher FR_marker_text;
+ros::Publisher BL_marker_text;
+ros::Publisher BR_marker_text;
+
 ros::Publisher angle_FL;
 ros::Publisher angle_FR;
 ros::Publisher angle_BL;
@@ -108,7 +115,7 @@ float now_angle[4] = {0, };
 
 float target_angle[4] = {0, };
 
-float max_z_cnt[4] = {0, };
+int max_z_cnt[4] = {0, };
 
 float MAF_input[6][MAF_MASK_SIZE];
 int maf_index[6] = {0, };
