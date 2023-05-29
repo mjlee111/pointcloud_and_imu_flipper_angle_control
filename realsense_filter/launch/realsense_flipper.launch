@@ -1,6 +1,13 @@
 <launch>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="camera"  default="camera"/>
     <arg name="filters" default="pointcloud"/>
+    <arg name="serial_no"             value="021222073502"/>
+  </include>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="camera"  default="camera2"/>
+    <arg name="filters" default="pointcloud"/>
+    <arg name="serial_no"             value="948522070995"/>
   </include>
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node"
     output="screen" />
@@ -8,8 +15,12 @@
     args="-d $(find realsense_filter)/rviz/realsense_flipper.rviz" />
   <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link"
     args="0.12 0 -0.24 1.5708 0 -0.523599 camera_color_frame base_link 10" />
+  <node pkg="tf" type="static_transform_publisher" name="cam2_to_base_link"
+    args="0.12 0 -0.57 -1.5708 0 0.610865 camera2_color_frame base_link 10" />
   <node pkg="flipper_control_data" type="flipper_control_data" name="flipper_control_data"
     output="screen" />
+
+
   <!-- <node pkg="ebimu" type="imu_pub" name="imu_pub">
     <param name="port" value="/dev/IMU" />
     <param name="baud" value="115200" />

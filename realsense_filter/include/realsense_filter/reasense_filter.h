@@ -43,7 +43,7 @@
 #define IMU_DATA_RELIANCE 0.9
 #define ANGLE_POS_SUM 8
 
-#define AUTO_FLIPPER_TRIGGER 60
+#define AUTO_FLIPPER_TRIGGER 30
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
@@ -116,6 +116,8 @@ float now_angle[4] = {0, };
 float target_angle[4] = {0, };
 
 int max_z_cnt[4] = {0, };
+
+bool auto_trigger[4] = {false, false, false, false};
 
 float MAF_input[6][MAF_MASK_SIZE];
 int maf_index[6] = {0, };

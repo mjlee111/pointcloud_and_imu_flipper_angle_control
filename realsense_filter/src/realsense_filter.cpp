@@ -45,8 +45,8 @@ int main(int argc, char **argv)
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  three_filter(FLIPPER_FL, input_cloud_msg, FL_point_pub, -0.6, -0.05, 0.2, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, -1.6808, 0, 0);
-  three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.6, 0.2, 0.5, -10.0, 2.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.3, -1.6808, 0, 0);
+  three_filter(FLIPPER_FL, input_cloud_msg, FL_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
+  three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
   marker(FLIPPER_FL, FL_marker, FL_marker_text, FL_xyz);
   marker(FLIPPER_FR, FR_marker, FR_marker_text, FR_xyz);
   float filtered_FL = MAF(atan_data, FLIPPER_FL) - imu_roll * 0.5 + imu_pitch * 0.5;
@@ -75,35 +75,35 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
     filtered_BR += ANGLE_POS_SUM;
   }
 
-  if(BL_xyz[2] > 0.05 && BL_xyz[2] < 0.5) max_z_cnt[FLIPPER_BL] += 1;
-  else max_z_cnt[FLIPPER_BL] = 0;
-  if(max_z_cnt[FLIPPER_BL] > AUTO_FLIPPER_TRIGGER) max_z_cnt[FLIPPER_BL] = AUTO_FLIPPER_TRIGGER;
+  if (BL_xyz[2] > 0.05 && BL_xyz[2] < 0.5)
+    max_z_cnt[FLIPPER_BL] += 1;
+  else
+    max_z_cnt[FLIPPER_BL] = 0;
+  if (max_z_cnt[FLIPPER_BL] > AUTO_FLIPPER_TRIGGER)
+    max_z_cnt[FLIPPER_BL] = AUTO_FLIPPER_TRIGGER;
 
-  if(BR_xyz[2] > 0.05 && BR_xyz[2] < 0.5) max_z_cnt[FLIPPER_BR] += 1;
-  else max_z_cnt[FLIPPER_BR] = 0;
-  if(max_z_cnt[FLIPPER_BR] > AUTO_FLIPPER_TRIGGER) max_z_cnt[FLIPPER_BR] = AUTO_FLIPPER_TRIGGER;
+  if (BR_xyz[2] > 0.05 && BR_xyz[2] < 0.5)
+    max_z_cnt[FLIPPER_BR] += 1;
+  else
+    max_z_cnt[FLIPPER_BR] = 0;
+  if (max_z_cnt[FLIPPER_BR] > AUTO_FLIPPER_TRIGGER)
+    max_z_cnt[FLIPPER_BR] = AUTO_FLIPPER_TRIGGER;
 
-  //cout << "BL_cnt : " << max_z_cnt[FLIPPER_BL] << " BR_cnt : " << max_z_cnt[FLIPPER_BR] << endl; 
+  //cout << "BL_cnt : " << max_z_cnt[FLIPPER_BL] << " BR_cnt : " << max_z_cnt[FLIPPER_BR] << endl;
 
-  if (imu_roll < 10 && imu_roll > -10 && imu_pitch < 10 && imu_pitch > -10)
+  if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
   {
-    if (max_z_cnt[FLIPPER_BL] < AUTO_FLIPPER_TRIGGER)
-    {
-      filtered_BL = 45;
-      //ROS_INFO("NO Object Detected BL Flipper Going Init.");
-    }
+    if (max_z_cnt[FLIPPER_BL] >= AUTO_FLIPPER_TRIGGER)
+      auto_trigger[FLIPPER_BL] = true;
     else 
-      filtered_BL = filtered_BL;
+      auto_trigger[FLIPPER_BL] = false;
 
-    if (max_z_cnt[FLIPPER_BR] < AUTO_FLIPPER_TRIGGER)
-    {
-      filtered_BR = 45;
-      //ROS_INFO("NO Object Detected BR Flipper Going Init.");
-    }
+    if (max_z_cnt[FLIPPER_BR] >= AUTO_FLIPPER_TRIGGER)
+      auto_trigger[FLIPPER_BR] = true;
     else 
-      filtered_BR = filtered_BR;
+      auto_trigger[FLIPPER_BR] = false;
   }
-
+  //cout << "BL : " << auto_trigger[FLIPPER_BL] << " BR : " << auto_trigger[FLIPPER_BR] << endl;
   flipper_back(filtered_BL, filtered_BR);
   // cout << "CBL :" << atan_data[FLIPPER_BL]  << " CBR :" << atan_data[FLIPPER_BR]  << " " << endl;
   // cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
@@ -333,6 +333,15 @@ void marker(int flipper, const ros::Publisher pub, const ros::Publisher textpub,
 
 void flipper_back(float angle_L, float angle_R)
 {
+  if (auto_trigger[FLIPPER_BL] == false)
+  {
+    angle_L = 45;
+  }
+  if (auto_trigger[FLIPPER_BR] == false)
+  {
+    angle_R = 45;
+  }
+  
   if (angle_L > MAX_B_FLIPPER)
     angle_L = MAX_B_FLIPPER;
   if (angle_L < MIN_B_FLIPPER)
@@ -360,7 +369,8 @@ void flipper_back(float angle_L, float angle_R)
   else if ((now_angle[FLIPPER_BR] > target_angle[FLIPPER_BR] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_BR] < target_angle[FLIPPER_BR] + FLIPPER_SPEED_GAIN))
     now_angle[FLIPPER_BR] = target_angle[FLIPPER_BR];
 
-  //cout << "now BL : " << toDEG(now_angle[FLIPPER_BL]) << " now BR : " << toDEG(now_angle[FLIPPER_BR]) << endl;
+  // cout << "now BL : " << toDEG(now_angle[FLIPPER_BL]) << " now BR : " << toDEG(now_angle[FLIPPER_BR]) << endl;
+
   BL.data = now_angle[FLIPPER_BL];
   BR.data = now_angle[FLIPPER_BR];
   angle_BL.publish(BR);

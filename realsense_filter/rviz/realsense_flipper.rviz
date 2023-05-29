@@ -6,6 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
+        - /PointCloud26
       Splitter Ratio: 0.5
     Tree Height: 387
   - Class: rviz/Selection
@@ -55,8 +56,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.20085328817367554
-        Min Value: -0.020678281784057617
+        Max Value: 0.00014030933380126953
+        Min Value: -0.017741382122039795
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -83,8 +84,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.02987578511238098
-        Min Value: 0.01597931981086731
+        Max Value: 0.004515647888183594
+        Min Value: -0.05590331554412842
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -111,8 +112,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.1941031813621521
-        Min Value: -0.023176252841949463
+        Max Value: 0.0031570792198181152
+        Min Value: -0.020478278398513794
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -139,8 +140,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.0298730731010437
-        Min Value: 0.015975534915924072
+        Max Value: 0.03952515125274658
+        Min Value: -0.0673292875289917
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -185,7 +186,7 @@ Visualization Manager:
       Marker Topic: /FL_marker
       Name: Marker
       Namespaces:
-        {}
+        line: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -193,7 +194,7 @@ Visualization Manager:
       Marker Topic: /FR_marker
       Name: Marker
       Namespaces:
-        {}
+        line: true
       Queue Size: 100
       Value: true
     - Class: rviz/Axes
@@ -252,7 +253,7 @@ Visualization Manager:
       Marker Topic: /FR_text
       Name: Marker
       Namespaces:
-        {}
+        text_Z: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -260,8 +261,36 @@ Visualization Manager:
       Marker Topic: /FL_text
       Name: Marker
       Namespaces:
-        {}
+        text_Z: true
       Queue Size: 100
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: ""
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Min Color: 0; 0; 0
+      Name: PointCloud2
+      Position Transformer: ""
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.009999999776482582
+      Style: Flat Squares
+      Topic: /camera2/depth/color/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: true
   Enabled: true
   Global Options:
@@ -298,18 +327,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.03245802968740463
-        Y: -0.23923873901367188
-        Z: -0.2040151208639145
+        X: 0.18642468750476837
+        Y: -0.14147017896175385
+        Z: 0.13180086016654968
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7747963070869446
+      Pitch: 0.5947962403297424
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.013568878173828
+      Yaw: 3.731754779815674
     Saved: ~
 Window Geometry:
   Displays:
@@ -328,4 +357,4 @@ Window Geometry:
     collapsed: true
   Width: 934
   X: 67
-  Y: 284
+  Y: 254
