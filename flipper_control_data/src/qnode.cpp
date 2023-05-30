@@ -80,13 +80,13 @@ namespace flipper_control_data
 
   void QNode::flipper_fl_callback(const std_msgs::Float64 &input)
   {
-    FLS = QString::number(toDEG(-input.data));
+    FLS = QString::number(toDEG(input.data));
     Q_EMIT FL_signal();
   }
 
   void QNode::flipper_fr_callback(const std_msgs::Float64 &input)
   {
-    FRS = QString::number(toDEG(input.data-6.28319));
+    FRS = QString::number(toDEG(-input.data));
     Q_EMIT FR_signal();
   }
 

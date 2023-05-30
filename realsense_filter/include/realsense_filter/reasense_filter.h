@@ -74,6 +74,8 @@ float toRAD(float deg);
 
 float toDEG(float rad);
 
+void IMU_feedback(int flipper1, int flipper2);
+
 ros::Subscriber front_cloud_sub;
 ros::Subscriber back_cloud_sub;
 
