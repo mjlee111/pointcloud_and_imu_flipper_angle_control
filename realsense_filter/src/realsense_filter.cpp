@@ -9,26 +9,32 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   cout << "START" << endl;
 
+  // SUBSCRIBER
   front_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
   back_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
 
   imu_sub = n.subscribe<sensor_msgs::Imu>("/imu", 10, imu_callback);
 
+  // PUBLISHER
+  // FILTERED_POINTCLOUD_PUB
   FL_point_pub = n.advertise<sensor_msgs::PointCloud2>("/FL_point", 10);
   FR_point_pub = n.advertise<sensor_msgs::PointCloud2>("/FR_point", 10);
   BL_point_pub = n.advertise<sensor_msgs::PointCloud2>("/BL_point", 10);
   BR_point_pub = n.advertise<sensor_msgs::PointCloud2>("/BR_point", 10);
 
+  // VISUALIZATION_MARKER_PUB
   FL_marker = n.advertise<visualization_msgs::Marker>("FL_marker", 10);
   FR_marker = n.advertise<visualization_msgs::Marker>("FR_marker", 10);
   BL_marker = n.advertise<visualization_msgs::Marker>("BL_marker", 10);
   BR_marker = n.advertise<visualization_msgs::Marker>("BR_marker", 10);
 
+  // FLIPPER_ANGLE_DATA_PUB (RAD)
   angle_FL = n.advertise<std_msgs::Float64>("/flipper_FL", 10);
   angle_FR = n.advertise<std_msgs::Float64>("/flipper_FR", 10);
   angle_BL = n.advertise<std_msgs::Float64>("/flipper_BL", 10);
   angle_BR = n.advertise<std_msgs::Float64>("/flipper_BR", 10);
 
+  // VISUALIZATION_TEXT_PUB
   FL_marker_text = n.advertise<visualization_msgs::Marker>("/FL_text", 10);
   FR_marker_text = n.advertise<visualization_msgs::Marker>("/FR_text", 10);
   BL_marker_text = n.advertise<visualization_msgs::Marker>("/BL_text", 10);
@@ -45,10 +51,14 @@ int main(int argc, char **argv)
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
+  // FRONT_FLIPPER_CALLBACK
+  // THREE_FILTER
   three_filter(FLIPPER_FL, input_cloud_msg, FL_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
   three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
+  // RVIZ 
   marker(FLIPPER_FL, FL_marker, FL_marker_text, FL_xyz);
   marker(FLIPPER_FR, FR_marker, FR_marker_text, FR_xyz);
+  // MAF
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
@@ -63,14 +73,14 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
     filtered_FR -= ANGLE_POS_SUM;
   }
 
-  if (FL_xyz[2] > 0.05 && FL_xyz[2] < 0.5)
+  if (FL_xyz[2] > 0.1 && FL_xyz[2] < 0.5)
     max_z_cnt[FLIPPER_FL] += 1;
   else
     max_z_cnt[FLIPPER_FL] = 0;
   if (max_z_cnt[FLIPPER_FL] > AUTO_FLIPPER_TRIGGER)
     max_z_cnt[FLIPPER_FL] = AUTO_FLIPPER_TRIGGER;
 
-  if (FR_xyz[2] > 0.05 && FR_xyz[2] < 0.5)
+  if (FR_xyz[2] > 0.1 && FR_xyz[2] < 0.5)
     max_z_cnt[FLIPPER_FR] += 1;
   else
     max_z_cnt[FLIPPER_FR] = 0;
@@ -93,8 +103,6 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
     auto_trigger[FLIPPER_FL, FLIPPER_FR] = true;
 
   flipper_front(filtered_FL, filtered_FR);
-  // cout << "CFL :" << atan_data[FLIPPER_FL]  << " CFR :" << atan_data[FLIPPER_FR]  << " ";
-  // cout << "FL : " << filtered_FL << " FR : " << filtered_FR << endl;
 }
 
 void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
@@ -103,18 +111,19 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
   marker(FLIPPER_BL, BL_marker, BL_marker_text, BL_xyz);
   marker(FLIPPER_BR, BR_marker, BR_marker_text, BR_xyz);
-  float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
-  float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
-  if ((imu_roll * 0.5 + imu_pitch * 0.5) < 0)
-  {
-    filtered_BL -= ANGLE_POS_SUM;
-    filtered_BR -= ANGLE_POS_SUM;
-  }
-  else if ((imu_roll * 0.5 + imu_pitch * 0.5) >= 0)
-  {
-    filtered_BL += ANGLE_POS_SUM;
-    filtered_BR += ANGLE_POS_SUM;
-  }
+  float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5))) - 20;
+  float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5))) - 20;
+
+  // if ((imu_roll * 0.5 + imu_pitch * 0.5) < 0)
+  // {
+  //   filtered_BL -= ANGLE_POS_SUM;
+  //   filtered_BR -= ANGLE_POS_SUM;
+  // }
+  // else if ((imu_roll * 0.5 + imu_pitch * 0.5) >= 0)
+  // {
+  //   filtered_BL += ANGLE_POS_SUM;
+  //   filtered_BR += ANGLE_POS_SUM;
+  // }
 
   if (BL_xyz[2] > 0.05 && BL_xyz[2] < 0.5)
     max_z_cnt[FLIPPER_BL] += 1;
@@ -130,8 +139,6 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   if (max_z_cnt[FLIPPER_BR] > AUTO_FLIPPER_TRIGGER)
     max_z_cnt[FLIPPER_BR] = AUTO_FLIPPER_TRIGGER;
 
-  // cout << "BL_cnt : " << max_z_cnt[FLIPPER_BL] << " BR_cnt : " << max_z_cnt[FLIPPER_BR] << endl;
-
   if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
   {
     if (max_z_cnt[FLIPPER_BL] >= AUTO_FLIPPER_TRIGGER)
@@ -146,10 +153,8 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   }
   else 
     auto_trigger[FLIPPER_BL, FLIPPER_BR] = true;
-  // cout << "BL : " << auto_trigger[FLIPPER_BL] << " BR : " << auto_trigger[FLIPPER_BR] << endl;
+
   flipper_back(filtered_BL, filtered_BR);
-  // cout << "CBL :" << atan_data[FLIPPER_BL]  << " CBR :" << atan_data[FLIPPER_BR]  << " " << endl;
-  // cout << "BL : " << filtered_BL << " BR : " << filtered_BR << endl << endl;
 }
 
 void imu_callback(const sensor_msgs::Imu input_imu)
