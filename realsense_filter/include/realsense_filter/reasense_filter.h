@@ -23,6 +23,7 @@
 #include <sensor_msgs/point_cloud2_iterator.h>
 #include <cmath>
 #include <sensor_msgs/Imu.h>
+#include <thread>
 
 #include "std_msgs/Float64.h"
 
@@ -48,6 +49,8 @@
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 typedef pcl::PointCloud<PointT> PointCloudT;
+
+void calthreadFunction(int argc, char **argv);
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg);
 

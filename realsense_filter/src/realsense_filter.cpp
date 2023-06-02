@@ -9,9 +9,7 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   cout << "START" << endl;
 
-  // SUBSCRIBER
-  front_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
-  back_cloud_sub = n.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
+  thread pointcloud_run(calthreadFunction, argc, argv);
 
   imu_sub = n.subscribe<sensor_msgs::Imu>("/imu", 10, imu_callback);
 
@@ -46,7 +44,26 @@ int main(int argc, char **argv)
     ros::spinOnce();
     loop_rate.sleep();
   }
+
+  pointcloud_run.join();
+
   return 0;
+}
+
+void calthreadFunction(int argc, char **argv)
+{
+  ros::init(argc, argv, "pointcloud math");
+  ros::NodeHandle node;
+  // SUBSCRIBER
+  front_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
+  back_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
+
+  ros::Rate loop_rate(20);
+  while (ros::ok())
+  {
+    ros::spinOnce();
+    loop_rate.sleep();
+  }
 }
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
