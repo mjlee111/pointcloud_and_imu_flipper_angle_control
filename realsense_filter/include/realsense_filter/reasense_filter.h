@@ -24,8 +24,10 @@
 #include <cmath>
 #include <sensor_msgs/Imu.h>
 #include <thread>
+#include <vector>
 
 #include "std_msgs/Float64.h"
+#include <std_msgs/Float64MultiArray.h>
 
 #define FLIPPER_SPEED_GAIN 0.05
 #define MAX_F_FLIPPER 130
@@ -99,15 +101,23 @@ ros::Publisher FR_marker_text;
 ros::Publisher BL_marker_text;
 ros::Publisher BR_marker_text;
 
+ros::Publisher Front_angle;
+ros::Publisher Back_angle;
+
 ros::Publisher angle_FL;
 ros::Publisher angle_FR;
 ros::Publisher angle_BL;
 ros::Publisher angle_BR;
 
+std_msgs::Float64MultiArray FRONT_DATA;
+std_msgs::Float64MultiArray BACK_DATA;
+
 std_msgs::Float64 FL;
 std_msgs::Float64 FR;
 std_msgs::Float64 BL;
 std_msgs::Float64 BR;
+
+bool marker_arg;
 
 float FL_xyz[3] = {0, };
 float FR_xyz[3] = {0, };
