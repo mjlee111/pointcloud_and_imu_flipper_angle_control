@@ -9,7 +9,16 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   cout << "START" << endl;
 
-  n.getParam("marker", marker_arg);
+  std::string param;
+  n.getParam("/realsense_filter_node/realsese_visuals", param);
+  if(param == "off") 
+  {
+    marker_arg = false;
+  }
+  else if(param == "on")
+  {
+    marker_arg = true;
+  }
 
   thread pointcloud_run(calthreadFunction, argc, argv);
 
@@ -20,7 +29,7 @@ int main(int argc, char **argv)
   Front_angle = n.advertise<std_msgs::Float64MultiArray>("/flipper_front", 10);
   Back_angle = n.advertise<std_msgs::Float64MultiArray>("/flipper_back", 10);
 
-  if (marker_arg == true)
+  if (marker_arg)
   {
     // FILTERED_POINTCLOUD_PUB
     FL_point_pub = n.advertise<sensor_msgs::PointCloud2>("/FL_point", 10);

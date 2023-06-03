@@ -1,4 +1,6 @@
 #include <ros/ros.h>
+#include <ros/node_handle.h>
+
 #include <boost/make_shared.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>

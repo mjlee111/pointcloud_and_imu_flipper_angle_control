@@ -27,6 +27,7 @@
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/Imu.h>
 #include <QString>
+#include <std_msgs/Float64MultiArray.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -70,12 +71,12 @@ namespace flipper_control_data
     int init_argc;
     char **init_argv;
 
-    void flipper_fl_callback(const std_msgs::Float64 &input);
-    void flipper_fr_callback(const std_msgs::Float64 &input);
-    void flipper_bl_callback(const std_msgs::Float64 &input);
-    void flipper_br_callback(const std_msgs::Float64 &input);
+    void flipper_f_callback(const std_msgs::Float64MultiArray &input);
+    void flipper_b_callback(const std_msgs::Float64MultiArray &input);
     void imu_callback(const sensor_msgs::Imu &input_imu);
     ros::Subscriber IMU;
+    ros::Subscriber flipperF;
+    ros::Subscriber flipperB;
     ros::Subscriber flipper_FL;
     ros::Subscriber flipper_FR;
     ros::Subscriber flipper_BL;

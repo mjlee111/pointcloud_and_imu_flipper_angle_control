@@ -54,10 +54,8 @@ namespace flipper_control_data
     // ros::start(); // explicitly needed since our nodehandle is going out of scope.
     ros::NodeHandle n;
 
-    flipper_FL = n.subscribe("/flipper_FL", 10, &QNode::flipper_fl_callback, this);
-    flipper_FR = n.subscribe("/flipper_FR", 10, &QNode::flipper_fr_callback, this);
-    flipper_BL = n.subscribe("/flipper_BL", 10, &QNode::flipper_bl_callback, this);
-    flipper_BR = n.subscribe("/flipper_BR", 10, &QNode::flipper_br_callback, this);
+    flipperF = n.subscribe("/flipper_front", 10, &QNode::flipper_f_callback, this);
+    flipperB = n.subscribe("/flipper_back", 10, &QNode::flipper_b_callback, this);
 
     IMU = n.subscribe("/imu", 10, &QNode::imu_callback, this);
     cout << "START" << endl;
@@ -78,30 +76,22 @@ namespace flipper_control_data
     Q_EMIT rosShutdown(); // used to signal the gui for a shutdown (useful to roslaunch)
   }
 
-  void QNode::flipper_fl_callback(const std_msgs::Float64 &input)
+  void QNode::flipper_f_callback(const std_msgs::Float64MultiArray &input)
   {
-    FLS = QString::number(toDEG(input.data));
+    FLS = QString::number(toDEG(input.data[0]));
+    FRS = QString::number(toDEG(-input.data[1]));
     Q_EMIT FL_signal();
-  }
-
-  void QNode::flipper_fr_callback(const std_msgs::Float64 &input)
-  {
-    FRS = QString::number(toDEG(-input.data));
     Q_EMIT FR_signal();
   }
 
-  void QNode::flipper_bl_callback(const std_msgs::Float64 &input)
+  void QNode::flipper_b_callback(const std_msgs::Float64MultiArray &input)
   {
-    BLS = QString::number(toDEG(input.data));
+    BLS = QString::number(toDEG(input.data[0]));
+    BRS = QString::number(toDEG(-input.data[1]));
     Q_EMIT BL_signal();
-  }
-
-  void QNode::flipper_br_callback(const std_msgs::Float64 &input)
-  {
-    BRS = QString::number(toDEG(-input.data));
     Q_EMIT BR_signal();
   }
-
+  
   void QNode::imu_callback(const sensor_msgs::Imu &input_imu)
   {
     float w, x, y, z, roll, pitch, yaw;

@@ -24,6 +24,8 @@ include_directories(
 )
 
 add_executable(${PROJECT_NAME}_node src/realsense_filter.cpp)
+#add_executable(pointcloud_calc_node src/pointcloud_calc.cpp)
+
 target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
 )
