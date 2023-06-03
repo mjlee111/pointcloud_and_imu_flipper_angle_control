@@ -87,53 +87,15 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   // RVIZ
   if (marker_arg == true)
   {
-    marker(FLIPPER_FL, FL_marker, FL_marker_text, FL_xyz);
-    marker(FLIPPER_FR, FR_marker, FR_marker_text, FR_xyz);
+    marker(FLIPPER_FL, FL_marker, FL_marker_text, flipper_xyz[FLIPPER_FL]);
+    marker(FLIPPER_FR, FR_marker, FR_marker_text, flipper_xyz[FLIPPER_FR]);
   }
 
   // MAF
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
-  if ((imu_roll * 0.5 + imu_pitch * 0.5) < 0)
-  {
-    filtered_FL += ANGLE_POS_SUM;
-    filtered_FR += ANGLE_POS_SUM;
-  }
-  else if ((imu_roll * 0.5 + imu_pitch * 0.5) >= 0)
-  {
-    filtered_FL -= ANGLE_POS_SUM;
-    filtered_FR -= ANGLE_POS_SUM;
-  }
-
-  if (FL_xyz[2] > 0.1 && FL_xyz[2] < 0.5)
-    max_z_cnt[FLIPPER_FL] += 1;
-  else
-    max_z_cnt[FLIPPER_FL] = 0;
-  if (max_z_cnt[FLIPPER_FL] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[FLIPPER_FL] = AUTO_FLIPPER_TRIGGER;
-
-  if (FR_xyz[2] > 0.1 && FR_xyz[2] < 0.5)
-    max_z_cnt[FLIPPER_FR] += 1;
-  else
-    max_z_cnt[FLIPPER_FR] = 0;
-  if (max_z_cnt[FLIPPER_FR] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[FLIPPER_FR] = AUTO_FLIPPER_TRIGGER;
-
-  if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
-  {
-    if (max_z_cnt[FLIPPER_FL] >= AUTO_FLIPPER_TRIGGER)
-      auto_trigger[FLIPPER_FL] = true;
-    else
-      auto_trigger[FLIPPER_FL] = false;
-
-    if (max_z_cnt[FLIPPER_FR] >= AUTO_FLIPPER_TRIGGER)
-      auto_trigger[FLIPPER_FR] = true;
-    else
-      auto_trigger[FLIPPER_FR] = false;
-  }
-  else
-    auto_trigger[FLIPPER_FL, FLIPPER_FR] = true;
+  auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
 
   flipper_front(filtered_FL, filtered_FR);
 }
@@ -144,52 +106,14 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   three_filter(FLIPPER_BR, input_cloud_msg, BR_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0, 0, 0.255, 2.0944, 0, 3.14159);
   if (marker_arg == true)
   {
-    marker(FLIPPER_BL, BL_marker, BL_marker_text, BL_xyz);
-    marker(FLIPPER_BR, BR_marker, BR_marker_text, BR_xyz);
+    marker(FLIPPER_BL, BL_marker, BL_marker_text, flipper_xyz[FLIPPER_BL]);
+    marker(FLIPPER_BR, BR_marker, BR_marker_text, flipper_xyz[FLIPPER_BR]);
   }
 
-  float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5))) - 20;
-  float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5))) - 20;
+  float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
+  float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
-  // if ((imu_roll * 0.5 + imu_pitch * 0.5) < 0)
-  // {
-  //   filtered_BL -= ANGLE_POS_SUM;
-  //   filtered_BR -= ANGLE_POS_SUM;
-  // }
-  // else if ((imu_roll * 0.5 + imu_pitch * 0.5) >= 0)
-  // {
-  //   filtered_BL += ANGLE_POS_SUM;
-  //   filtered_BR += ANGLE_POS_SUM;
-  // }
-
-  if (BL_xyz[2] > 0.05 && BL_xyz[2] < 0.5)
-    max_z_cnt[FLIPPER_BL] += 1;
-  else
-    max_z_cnt[FLIPPER_BL] = 0;
-  if (max_z_cnt[FLIPPER_BL] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[FLIPPER_BL] = AUTO_FLIPPER_TRIGGER;
-
-  if (BR_xyz[2] > 0.05 && BR_xyz[2] < 0.5)
-    max_z_cnt[FLIPPER_BR] += 1;
-  else
-    max_z_cnt[FLIPPER_BR] = 0;
-  if (max_z_cnt[FLIPPER_BR] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[FLIPPER_BR] = AUTO_FLIPPER_TRIGGER;
-
-  if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
-  {
-    if (max_z_cnt[FLIPPER_BL] >= AUTO_FLIPPER_TRIGGER)
-      auto_trigger[FLIPPER_BL] = true;
-    else
-      auto_trigger[FLIPPER_BL] = false;
-
-    if (max_z_cnt[FLIPPER_BR] >= AUTO_FLIPPER_TRIGGER)
-      auto_trigger[FLIPPER_BR] = true;
-    else
-      auto_trigger[FLIPPER_BR] = false;
-  }
-  else
-    auto_trigger[FLIPPER_BL, FLIPPER_BR] = true;
+  auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
 
   flipper_back(filtered_BL, filtered_BR);
 }
@@ -209,6 +133,38 @@ void imu_callback(const sensor_msgs::Imu input_imu)
   imu_yaw = toDEG(angles.yaw);
 
   // cout << imu_roll << " / " << imu_pitch << endl;
+}
+
+void auto_flipper_trigger(int flipper1, int flipper2)
+{
+  if (flipper_xyz[flipper1][2] > 0.1 && flipper_xyz[flipper1][2] < 0.5)
+    max_z_cnt[flipper1] += 1;
+  else
+    max_z_cnt[flipper1] = 0;
+  if (max_z_cnt[flipper1] > AUTO_FLIPPER_TRIGGER)
+    max_z_cnt[flipper1] = AUTO_FLIPPER_TRIGGER;
+
+  if (flipper_xyz[flipper2][2] > 0.1 && flipper_xyz[flipper2][2] < 0.5)
+    max_z_cnt[flipper2] += 1;
+  else
+    max_z_cnt[flipper2] = 0;
+  if (max_z_cnt[flipper2] > AUTO_FLIPPER_TRIGGER)
+    max_z_cnt[flipper2] = AUTO_FLIPPER_TRIGGER;
+
+  if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
+  {
+    if (max_z_cnt[flipper1] >= AUTO_FLIPPER_TRIGGER)
+      auto_trigger[flipper1] = true;
+    else
+      auto_trigger[flipper1] = false;
+
+    if (max_z_cnt[flipper2] >= AUTO_FLIPPER_TRIGGER)
+      auto_trigger[flipper2] = true;
+    else
+      auto_trigger[flipper2] = false;
+  }
+  else
+    auto_trigger[flipper1, flipper2] = true;
 }
 
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
@@ -338,36 +294,10 @@ void max_Z(const sensor_msgs::PointCloud2ConstPtr &cloud_msg, int flipper)
   float angle = atan(tan);
   angle = angle * 180 / M_PI;
 
-  // cout << flipper << " : " << max_z << " / " ;
-
-  if (flipper == FLIPPER_FL)
-  {
-    atan_data[FLIPPER_FL] = angle;
-    FL_xyz[FLIPPER_FL] = x_of_max_z;
-    FL_xyz[FLIPPER_FR] = y_of_max_z;
-    FL_xyz[FLIPPER_BL] = max_z;
-  }
-  else if (flipper == FLIPPER_FR)
-  {
-    atan_data[FLIPPER_FR] = angle;
-    FR_xyz[0] = x_of_max_z;
-    FR_xyz[1] = y_of_max_z;
-    FR_xyz[2] = max_z;
-  }
-  else if (flipper == FLIPPER_BL)
-  {
-    atan_data[FLIPPER_BL] = -angle;
-    BL_xyz[0] = x_of_max_z;
-    BL_xyz[1] = y_of_max_z;
-    BL_xyz[2] = max_z;
-  }
-  else if (flipper == FLIPPER_BR)
-  {
-    atan_data[FLIPPER_BR] = -angle;
-    BR_xyz[0] = x_of_max_z;
-    BR_xyz[1] = y_of_max_z;
-    BR_xyz[2] = max_z;
-  }
+  atan_data[flipper];
+  flipper_xyz[flipper][0] = x_of_max_z;
+  flipper_xyz[flipper][1] = y_of_max_z;
+  flipper_xyz[flipper][2] = max_z;
   return;
 }
 
@@ -501,16 +431,6 @@ void flipper_front(float angle_L, float angle_R)
 
   FRONT_DATA.data = {now_angle[FLIPPER_FL], now_angle[FLIPPER_FR]};
   Front_angle.publish(FRONT_DATA);
-}
-
-void IMU_feedback(int flipper1, int flipper2)
-{
-  if (flipper1 == FLIPPER_FL && flipper2 == FLIPPER_FR)
-  {
-  }
-  else if (flipper1 == FLIPPER_BL && flipper2 == FLIPPER_BR)
-  {
-  }
 }
 
 float MAF(float *input, int flipper)

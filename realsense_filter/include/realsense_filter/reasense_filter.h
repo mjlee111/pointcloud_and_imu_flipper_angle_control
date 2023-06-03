@@ -81,7 +81,7 @@ float toRAD(float deg);
 
 float toDEG(float rad);
 
-void IMU_feedback(int flipper1, int flipper2);
+void auto_flipper_trigger(int flipper1, int flipper2);
 
 ros::Subscriber front_cloud_sub;
 ros::Subscriber back_cloud_sub;
@@ -106,11 +106,6 @@ ros::Publisher BR_marker_text;
 ros::Publisher Front_angle;
 ros::Publisher Back_angle;
 
-ros::Publisher angle_FL;
-ros::Publisher angle_FR;
-ros::Publisher angle_BL;
-ros::Publisher angle_BR;
-
 std_msgs::Float64MultiArray FRONT_DATA;
 std_msgs::Float64MultiArray BACK_DATA;
 
@@ -122,10 +117,7 @@ std_msgs::Float64 BR;
 
 bool marker_arg;
 
-float FL_xyz[3] = {0, };
-float FR_xyz[3] = {0, };
-float BL_xyz[3] = {0, };
-float BR_xyz[3] = {0, };
+float flipper_xyz[4][3];
 
 float atan_data[4] = {0, };
 
