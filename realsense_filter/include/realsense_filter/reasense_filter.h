@@ -1,6 +1,8 @@
 #include <ros/ros.h>
 #include <ros/node_handle.h>
 
+#include "angle.h"
+
 #include <boost/make_shared.hpp>
 #include <pcl_ros/point_cloud.h>
 #include <pcl/point_types.h>
@@ -77,10 +79,6 @@ void flipper_back(float angle_L, float angle_R);
 
 float MAF(float input[], int flipper);
 
-float toRAD(float deg);
-
-float toDEG(float rad);
-
 void auto_flipper_trigger(int flipper1, int flipper2);
 
 ros::Subscriber front_cloud_sub;
@@ -131,21 +129,6 @@ bool auto_trigger[4] = {false, false, false, false};
 
 float MAF_input[6][MAF_MASK_SIZE];
 int maf_index[6] = {0, };
-
-struct Quaternion {
-    float w;
-    float x;
-    float y;
-    float z;
-};
-
-struct EulerAngles {
-    float roll;
-    float pitch;
-    float yaw;
-};
-
-EulerAngles quaternionToEulerAngles(const Quaternion& q);
 
 float imu_roll = 0;
 float imu_pitch = 0;

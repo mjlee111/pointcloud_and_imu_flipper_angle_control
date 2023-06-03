@@ -1,6 +1,5 @@
 #include "../include/realsense_filter/reasense_filter.h"
 
-// pcl
 using namespace std;
 
 int main(int argc, char **argv)
@@ -131,8 +130,6 @@ void imu_callback(const sensor_msgs::Imu input_imu)
   imu_pitch = toDEG(angles.roll);
   imu_roll = toDEG(angles.pitch);
   imu_yaw = toDEG(angles.yaw);
-
-  // cout << imu_roll << " / " << imu_pitch << endl;
 }
 
 void auto_flipper_trigger(int flipper1, int flipper2)
@@ -387,8 +384,6 @@ void flipper_back(float angle_L, float angle_R)
   else if ((now_angle[FLIPPER_BR] > target_angle[FLIPPER_BR] - FLIPPER_SPEED_GAIN) && (now_angle[FLIPPER_BR] < target_angle[FLIPPER_BR] + FLIPPER_SPEED_GAIN))
     now_angle[FLIPPER_BR] = target_angle[FLIPPER_BR];
 
-  // cout << "now BL : " << toDEG(now_angle[FLIPPER_BL]) << " now BR : " << toDEG(now_angle[FLIPPER_BR]) << endl;
-
   BACK_DATA.data = {now_angle[FLIPPER_BR], now_angle[FLIPPER_BL]};
   Back_angle.publish(BACK_DATA);
 }
@@ -445,33 +440,4 @@ float MAF(float *input, int flipper)
   return sum / MAF_MASK_SIZE;
 }
 
-float toRAD(float deg)
-{
-  return deg * M_PI / 180;
-}
 
-float toDEG(float rad)
-{
-  return rad * 180 / M_PI;
-}
-
-EulerAngles quaternionToEulerAngles(const Quaternion &q)
-{
-  EulerAngles angles;
-
-  float sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
-  float cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
-  angles.roll = std::atan2(sinr_cosp, cosr_cosp);
-
-  float sinp = 2.0 * (q.w * q.y - q.z * q.x);
-  if (std::abs(sinp) >= 1.0)
-    angles.pitch = std::copysign(M_PI / 2.0, sinp);
-  else
-    angles.pitch = std::asin(sinp);
-
-  float siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
-  float cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
-  angles.yaw = std::atan2(siny_cosp, cosy_cosp);
-
-  return angles;
-}

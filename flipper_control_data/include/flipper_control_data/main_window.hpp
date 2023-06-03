@@ -43,6 +43,7 @@ public Q_SLOTS:
 	void BL_slot(void);
 	void BR_slot(void);
 	void IMU_slot(void);
+	void quit_slot(void);
 
 
 private:
