@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(flipper_mj_msgs)
+project(flipper_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
   DIRECTORY msg
   FILES
-  mj_flipper.msg
+  flipper.msg
 )
 
 generate_messages(

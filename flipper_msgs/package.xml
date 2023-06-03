@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>flipper_mj_msgs</name>
+  <name>flipper_msgs</name>
   <version>0.0.0</version>
   <description>The flipper_mj_msgs package</description>
   <maintainer email="menggu1234@naver.com">m</maintainer>
