@@ -43,4 +43,7 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ![image](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/135fe60f-a172-46e9-8a47-143cff9ff9cd)
 #### - Outline Removal Filter 
 ![image](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/e6646897-e953-41b3-8cc0-e024c8c477fd)
+####
+#### - Three Filters at once
+![image](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/8e39d5f4-a71e-4f90-b67a-e3be5bed26f3)
 
