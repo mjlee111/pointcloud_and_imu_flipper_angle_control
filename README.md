@@ -58,6 +58,9 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ####
 #### Back flipper simple test video without IMU feedback.
 https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/8b88b5be-ddb0-4fa3-8536-164ea53a774b
+#### Four flipper angle calculation test in Gazebo
+![gazebo_test](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/ae8f7c69-b421-4f7d-9c99-3c76c5240078)
+
 
 
 
