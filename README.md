@@ -6,6 +6,6 @@
 ## REQUIREMENTS
 ### realsense_filter node 
 #### - Realsense SDK 2.0 
-#### 
+#### - PCL ros 
 
 
