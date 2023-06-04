@@ -35,5 +35,6 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ## Package Description 
 ### realsense_filter 
 #### This package calculates the angel from the object in the surface. Our team had to control four flippers, so I used two realsense camera(d435i) to get pointcloud data. 
+![KakaoTalk_20230604_190737533](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/33506bf5-38d4-4263-b509-22351ca19d45)
 #### The input from the realsense camera is filtered to compress the raw data size, and remove the unneccesary parts. Three filters were used, descripted below.
 
