@@ -46,4 +46,8 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ####
 #### - Three Filters at once
 ![image](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/8e39d5f4-a71e-4f90-b67a-e3be5bed26f3)
+#### Using These Filters, two pointcloud raw data is splitted to four pointcloud data for flippers each.
+#### Four pointcloud data are used to calculate the angle of the object from the surface. Simple math is used in this process. 
+#### atan() function returns a float data from the input. This function refers to arctangent. 
+#### From the pointcloud data, a point which has the biggest Z coordinate data is founded. The Z coordinate and Y coordinate can be used as height and distance from the robot each.
 
