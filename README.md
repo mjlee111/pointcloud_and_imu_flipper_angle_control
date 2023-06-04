@@ -40,8 +40,8 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 roslaunch realsense_filter realsense_flipper.launch 
 ```
 ### parameters
-#### - visuals (true/false) : rviz & flipper data UI(flipper_control_data node) available
-#### - rs_visuals (on/off) : realsense_filter node pointcloud data publish parameter
+#### - visuals (true/false) : rviz & flipper data UI(flipper_control_data node) available default -> false
+#### - rs_visuals (on/off) : realsense_filter node pointcloud data publish parameter default -> off
 
 ## Package Description 
 ### realsense_filter 
