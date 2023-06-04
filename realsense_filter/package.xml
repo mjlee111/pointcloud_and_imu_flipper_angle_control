@@ -2,7 +2,7 @@
 <package format="2">
   <name>realsense_filter</name>
   <version>0.0.0</version>
-  <description>The realsense_filter package</description>
+  <description>realsense_filter package</description>
   <maintainer email="menggu1234@naver.com">m</maintainer>
   <license>TODO</license>
   <buildtool_depend>catkin</buildtool_depend>
