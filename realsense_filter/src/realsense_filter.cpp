@@ -10,11 +10,11 @@ int main(int argc, char **argv)
 
   std::string param;
   n.getParam("/realsense_filter_node/realsese_visuals", param);
-  if(param == "off") 
+  if (param == "off")
   {
     marker_arg = false;
   }
-  else if(param == "on")
+  else if (param == "on")
   {
     marker_arg = true;
   }
@@ -95,7 +95,49 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
   auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
-
+  // 앞쪽이 들림
+  if (imu_pitch > 5)
+  {
+    // 왼쪽이 들림
+    if (imu_roll < -5)
+    {
+      filtered_FL -= ANGLE_POS_SUM;
+      filtered_FR += ANGLE_POS_SUM_HALF;
+    }
+    // 오른쪽이 들림
+    else if (imu_roll > 5)
+    {
+      filtered_FL += ANGLE_POS_SUM_HALF;
+      filtered_FR -= ANGLE_POS_SUM;
+    }
+    // 양쪽이 들림
+    else if (imu_roll > -5 && imu_roll < 5)
+    {
+      filtered_FL -= ANGLE_POS_SUM;
+      filtered_FR -= ANGLE_POS_SUM;
+    }
+  }
+  // 뒷쪽이 들림
+  else if (imu_pitch < -5)
+  {
+    // 왼쪽이 들림
+    if (imu_roll < -5)
+    {
+      filtered_FL += ANGLE_POS_SUM_HALF;
+      filtered_FR += ANGLE_POS_SUM;
+    }
+    // 오른쪽이 들림
+    else if (imu_roll > 5)
+    {
+      filtered_FL += ANGLE_POS_SUM;
+      filtered_FR += ANGLE_POS_SUM_HALF;
+    }
+    else if (imu_roll > -5 && imu_roll < 5)
+    {
+      filtered_FL += ANGLE_POS_SUM;
+      filtered_FR += ANGLE_POS_SUM;
+    }
+  }
   flipper_front(filtered_FL, filtered_FR);
 }
 
@@ -113,7 +155,49 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
   auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
-
+  // 앞쪽이 들림
+  if (imu_pitch > 5)
+  {
+    // 왼쪽이 들림
+    if (imu_roll < -5)
+    {
+      filtered_BL += ANGLE_POS_SUM_HALF;
+      filtered_BR += ANGLE_POS_SUM;
+    }
+    // 오른쪽이 들림
+    else if (imu_roll > 5)
+    {
+      filtered_BL += ANGLE_POS_SUM;
+      filtered_BR += ANGLE_POS_SUM_HALF;
+    }
+    // 양쪽이 들림
+    else if (imu_roll > -5 && imu_roll < 5)
+    {
+      filtered_BL += ANGLE_POS_SUM;
+      filtered_BR += ANGLE_POS_SUM;
+    }
+  }
+  // 뒷쪽이 들림
+  else if (imu_pitch < -5)
+  {
+    // 왼쪽이 들림
+    if (imu_roll < -5)
+    {
+      filtered_BL -= ANGLE_POS_SUM;
+      filtered_BR += ANGLE_POS_SUM_HALF;
+    }
+    // 오른쪽이 들림
+    else if (imu_roll > 5)
+    {
+      filtered_BL += ANGLE_POS_SUM_HALF;
+      filtered_BR -= ANGLE_POS_SUM;
+    }
+    else if (imu_roll > -5 && imu_roll < 5)
+    {
+      filtered_BL -= ANGLE_POS_SUM;
+      filtered_BR -= ANGLE_POS_SUM;
+    }
+  }
   flipper_back(filtered_BL, filtered_BR);
 }
 
@@ -439,5 +523,3 @@ float MAF(float *input, int flipper)
     sum += MAF_input[flipper][i];
   return sum / MAF_MASK_SIZE;
 }
-
-

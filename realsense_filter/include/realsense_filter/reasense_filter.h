@@ -48,7 +48,8 @@
 
 #define MAF_MASK_SIZE 30
 #define IMU_DATA_RELIANCE 0.9
-#define ANGLE_POS_SUM 8
+#define ANGLE_POS_SUM 20
+#define ANGLE_POS_SUM_HALF 10
 
 #define AUTO_FLIPPER_TRIGGER 30
 
