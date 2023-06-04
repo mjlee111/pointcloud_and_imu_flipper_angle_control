@@ -19,6 +19,26 @@ int main(int argc, char **argv)
     marker_arg = true;
   }
 
+  n.getParam("/realsense_filter_node/front", param);
+  if (param == "off")
+  {
+    front_arg = false;
+  }
+  else if (param == "on")
+  {
+    front_arg = true;
+  }
+
+  n.getParam("/realsense_filter_node/back", param);
+  if (param == "off")
+  {
+    back_arg = false;
+  }
+  else if (param == "on")
+  {
+    back_arg = true;
+  }
+
   thread pointcloud_run(calthreadFunction, argc, argv);
 
   imu_sub = n.subscribe<sensor_msgs::Imu>("/imu", 10, imu_callback);
@@ -66,8 +86,14 @@ void calthreadFunction(int argc, char **argv)
   ros::init(argc, argv, "pointcloud math");
   ros::NodeHandle node;
   // SUBSCRIBER
-  front_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
+  if(front_arg)
+  {
+      front_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
+  }
+  if(back_arg)
+  {
   back_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
+  }
 
   ros::Rate loop_rate(20);
   while (ros::ok())
