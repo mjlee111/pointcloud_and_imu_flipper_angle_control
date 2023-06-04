@@ -47,7 +47,7 @@
 #define PITCH 5
 
 #define MAF_MASK_SIZE 30
-#define IMU_DATA_RELIANCE 0.9
+#define IMU_DATA_RELIANCE 0.98
 #define ANGLE_POS_SUM 20
 #define ANGLE_POS_SUM_HALF 10
 
