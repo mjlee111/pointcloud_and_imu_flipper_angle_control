@@ -50,6 +50,6 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 #### Four pointcloud data are used to calculate the angle of the object from the surface. Simple math is used in this process. 
 #### atan() function returns a float data from the input. This function refers to arctangent. 
 #### From the pointcloud data, a point which has the biggest Z coordinate data is founded. The Z coordinate and Y coordinate can be used as height of the object and distance from the robot each.
-![그림1](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/fe6895f7-704a-4a60-af75-36b98d124d72)
+![그림1](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/2e068655-2e60-45db-bcfb-76b141eef201)
 
 
