@@ -54,7 +54,6 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 #### Here is a simple image that explains the description.
 ![그림1](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/2e068655-2e60-45db-bcfb-76b141eef201)
 ####
-####
 #### Back flipper simple test video without IMU feedback.
 https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/8b88b5be-ddb0-4fa3-8536-164ea53a774b
 
