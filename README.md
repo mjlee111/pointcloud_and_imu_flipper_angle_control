@@ -34,6 +34,15 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ### flipper_control_data node
 #### - QT4
 
+## How to use
+###
+```shell 
+roslaunch realsense_filter realsense_flipper.launch 
+```
+### parameters
+#### - visuals (true/false) : rviz & flipper data UI(flipper_control_data node) available
+#### - rs_visuals (on/off) : realsense_filter node pointcloud data publish parameter
+
 ## Package Description 
 ### realsense_filter 
 #### This package calculates the angel from the object in the surface. Our team had to control four flippers, so I used two realsense camera(d435i) to get pointcloud data. 
