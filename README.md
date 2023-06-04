@@ -68,7 +68,7 @@ roslaunch realsense_filter realsense_flipper.launch
 ![그림1](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/2e068655-2e60-45db-bcfb-76b141eef201)
 ####
 #### Back flipper simple test video without IMU feedback.
-https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/8b88b5be-ddb0-4fa3-8536-164ea53a774b
+![GIFMaker_me](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/15c2fab9-129a-4254-b5a8-00292dcc87ac)
 #### Four flipper angle calculation test in Gazebo
 ![image10](https://github.com/mjlee111/pointcloud_and_imu_flipper_angle_control/assets/66550892/d520463a-ce0e-4fed-a2f2-410af5514067)
 
