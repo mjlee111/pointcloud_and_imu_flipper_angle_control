@@ -32,7 +32,7 @@ soruce ~/.bashrc
 sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl-conversions
 ```
 ### flipper_control_data node
-#### - QT4
+#### - QT4 build depends
 ```shell
 sudo apt-get install ros-melodic-ddynamic-reconfigure && sudo apt-get install ros-melodic-qt-build
 ```
