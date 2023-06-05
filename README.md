@@ -33,6 +33,9 @@ sudo apt-get install ros-melodic-pcl-ros && sudo apt-get install ros-melodic-pcl
 ```
 ### flipper_control_data node
 #### - QT4
+```shell
+sudo apt-get install ros-melodic-ddynamic-reconfigure && apt-get install ros-melodic-qt-build
+```
 
 ## How to use
 ###
