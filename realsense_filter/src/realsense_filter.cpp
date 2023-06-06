@@ -119,54 +119,43 @@ void backthreadFunction(int argc, char **argv)
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 {
-  // FRONT_FLIPPER_CALLBACK
-  // THREE_FILTER
   three_filter(FLIPPER_FL, input_cloud_msg, FL_point_pub, -0.15, -0.05, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
   three_filter(FLIPPER_FR, input_cloud_msg, FR_point_pub, 0.05, 0.15, -0.2, 0.8, -100.0, 100.0, 0.06, 0.06, 0.06, 50, 1.0, 0.1, 0, 0.57, -2.18166, 0, 0);
-  // RVIZ
   if (marker_arg == true)
   {
     marker(FLIPPER_FL, FL_marker, FL_marker_text, flipper_xyz[FLIPPER_FL]);
     marker(FLIPPER_FR, FR_marker, FR_marker_text, flipper_xyz[FLIPPER_FR]);
   }
 
-  // MAF
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
   auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
-  // 앞쪽이 들림
   if (imu_pitch > 5)
   {
-    // 왼쪽이 들림
     if (imu_roll < -5)
     {
       filtered_FL -= ANGLE_POS_SUM;
       filtered_FR += ANGLE_POS_SUM_HALF;
     }
-    // 오른쪽이 들림
     else if (imu_roll > 5)
     {
       filtered_FL += ANGLE_POS_SUM_HALF;
       filtered_FR -= ANGLE_POS_SUM;
     }
-    // 양쪽이 들림
     else if (imu_roll > -5 && imu_roll < 5)
     {
       filtered_FL -= ANGLE_POS_SUM;
       filtered_FR -= ANGLE_POS_SUM;
     }
   }
-  // 뒷쪽이 들림
   else if (imu_pitch < -5)
   {
-    // 왼쪽이 들림
     if (imu_roll < -5)
     {
       filtered_FL += ANGLE_POS_SUM_HALF;
       filtered_FR += ANGLE_POS_SUM;
     }
-    // 오른쪽이 들림
     else if (imu_roll > 5)
     {
       filtered_FL += ANGLE_POS_SUM;
@@ -195,38 +184,32 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
   auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
-  // 앞쪽이 들림
   if (imu_pitch > 5)
   {
-    // 왼쪽이 들림
     if (imu_roll < -5)
     {
       filtered_BL += ANGLE_POS_SUM_HALF;
       filtered_BR += ANGLE_POS_SUM;
     }
-    // 오른쪽이 들림
     else if (imu_roll > 5)
     {
       filtered_BL += ANGLE_POS_SUM;
       filtered_BR += ANGLE_POS_SUM_HALF;
     }
-    // 양쪽이 들림
     else if (imu_roll > -5 && imu_roll < 5)
     {
       filtered_BL += ANGLE_POS_SUM;
       filtered_BR += ANGLE_POS_SUM;
     }
   }
-  // 뒷쪽이 들림
+
   else if (imu_pitch < -5)
   {
-    // 왼쪽이 들림
     if (imu_roll < -5)
     {
       filtered_BL -= ANGLE_POS_SUM;
       filtered_BR += ANGLE_POS_SUM_HALF;
     }
-    // 오른쪽이 들림
     else if (imu_roll > 5)
     {
       filtered_BL += ANGLE_POS_SUM_HALF;
@@ -293,7 +276,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
                   float x, float y, float z, float deg_p, float deg_y, float deg_r)
 {
-  // passthrough X : input_cloud_msg -> filtered_cloud_x
   pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_passthrough(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(*input_cloud_msg, *input_cloud_passthrough);
 
@@ -309,9 +291,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   if (filtered_cloud_x->empty())
     return;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // passthrough Y : filtered_cloud_x -> filtered_cloud_y
-
   pcl::PassThrough<pcl::PointXYZ> pass_filter2;
   pass_filter2.setInputCloud(filtered_cloud_x);
   pass_filter2.setFilterFieldName("y");
@@ -323,9 +302,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
 
   if (filtered_cloud_y->empty())
     return;
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // passthrough Z : filtered_cloud_y -> filtered_cloud_1
 
   pcl::PassThrough<pcl::PointXYZ> pass_filter3;
   pass_filter3.setInputCloud(filtered_cloud_y);
@@ -339,9 +315,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   if (filtered_cloud_1->empty())
     return;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // voxel : filtered_cloud_1 -> filtered_cloud_2
-
   pcl::VoxelGrid<pcl::PointXYZ> voxel_filter;
   voxel_filter.setInputCloud(filtered_cloud_1);
   voxel_filter.setLeafSize(x_leaf, y_leaf, z_leaf);
@@ -351,9 +324,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
 
   if (filtered_cloud_2->empty())
     return;
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // outliner : filtered_cloud_2 -> three_filtered_cloud
 
   pcl::StatisticalOutlierRemoval<pcl::PointXYZ> outliner_filter;
   outliner_filter.setInputCloud(filtered_cloud_2);
@@ -365,9 +335,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   if (three_filtered_cloud->empty())
     return;
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////
-  // tf calculation : three_filtered_cloud -> transformed_cloud
-
   pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
   Eigen::Affine3f transform = Eigen::Affine3f::Identity();
   transform.translation() << x, y, z;
@@ -378,8 +345,6 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
 
   if (transformed_cloud->empty())
     return;
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   sensor_msgs::PointCloud2 final;
   pcl::toROSMsg(*transformed_cloud, final);
@@ -398,7 +363,7 @@ void max_Z(const sensor_msgs::PointCloud2ConstPtr &cloud_msg, int flipper)
   PointCloud::Ptr cloud(new PointCloud);
   pcl::fromROSMsg(*cloud_msg, *cloud);
 
-  float max_z = -numeric_limits<float>::infinity(); // initialize to negative infinity
+  float max_z = -numeric_limits<float>::infinity();
   float y_of_max_z = 0;
   float x_of_max_z = 0;
 
