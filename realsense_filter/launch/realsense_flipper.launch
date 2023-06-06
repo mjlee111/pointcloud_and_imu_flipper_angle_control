@@ -8,7 +8,7 @@
   <arg name="rs2" default="153122079694" />
 
   <!-- back realsense -->
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(arg back)">
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(eval back=='on')">
     <arg name="camera" default="camera"/>
     <arg name="filters" default="pointcloud"/>
     <arg name="serial_no" value="$(arg rs1)"/>
@@ -20,7 +20,7 @@
   </include> -->
 
   <!-- front realsense -->
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(arg front)">
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(eval front=='on')">
     <arg name="camera" default="camera2"/>
     <arg name="filters" default="pointcloud"/>
     <arg name="serial_no" value="$(arg rs2)"/>
