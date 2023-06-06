@@ -39,7 +39,8 @@ int main(int argc, char **argv)
     back_arg = true;
   }
 
-  thread pointcloud_run(calthreadFunction, argc, argv);
+  thread pointcloud_front(frontthreadFunction, argc, argv);
+  thread pointcloud_back(backthreadFunction, argc, argv);
 
   imu_sub = n.subscribe<sensor_msgs::Imu>("/imu", 10, imu_callback);
 
@@ -73,26 +74,41 @@ int main(int argc, char **argv)
     loop_rate.sleep();
   }
 
-  pointcloud_run.join();
+  if (front_arg)
+  {
+    pointcloud_front.join();
+  }
+  if (back_arg)
+  {
+    pointcloud_back.join();
+  }
 
   return 0;
 }
 
-void calthreadFunction(int argc, char **argv)
+void frontthreadFunction(int argc, char **argv)
 {
-  ros::init(argc, argv, "pointcloud math");
+  ros::init(argc, argv, "pointcloud math front");
   ros::NodeHandle node;
   // SUBSCRIBER
-  if (front_arg)
+  back_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
+  Back_angle = node.advertise<std_msgs::Float64MultiArray>("/flipper_back", 10);
+
+  ros::Rate loop_rate(20);
+  while (ros::ok())
   {
-    front_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera2/depth/color/points", 10, front_callback);
-    Front_angle = node.advertise<std_msgs::Float64MultiArray>("/flipper_front", 10);
+    ros::spinOnce();
+    loop_rate.sleep();
   }
-  if (back_arg)
-  {
-    back_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
-    Back_angle = node.advertise<std_msgs::Float64MultiArray>("/flipper_back", 10);
-  }
+}
+
+void backthreadFunction(int argc, char **argv)
+{
+  ros::init(argc, argv, "pointcloud math back");
+  ros::NodeHandle node;
+  // SUBSCRIBER
+  back_cloud_sub = node.subscribe<sensor_msgs::PointCloud2>("/camera/depth/color/points", 10, back_callback);
+  Back_angle = node.advertise<std_msgs::Float64MultiArray>("/flipper_back", 10);
 
   ros::Rate loop_rate(20);
   while (ros::ok())

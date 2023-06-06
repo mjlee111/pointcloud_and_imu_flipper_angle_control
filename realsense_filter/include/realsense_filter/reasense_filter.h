@@ -57,7 +57,9 @@ typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
-void calthreadFunction(int argc, char **argv);
+void frontthreadFunction(int argc, char **argv);
+
+void backthreadFunction(int argc, char **argv);
 
 void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg);
 
@@ -70,7 +72,7 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
                   float x_leaf, float y_leaf, float z_leaf, int meanK, float threshold,
                   float x, float y, float z, float deg_p, float deg_y, float deg_r);
 
-void max_Z(const sensor_msgs::PointCloud2ConstPtr& cloud_msg, int flipper);
+void max_Z(const sensor_msgs::PointCloud2ConstPtr &cloud_msg, int flipper);
 
 void marker(int flipper, const ros::Publisher pub, const ros::Publisher textpub, float input_float[3]);
 
@@ -108,7 +110,6 @@ ros::Publisher Back_angle;
 std_msgs::Float64MultiArray FRONT_DATA;
 std_msgs::Float64MultiArray BACK_DATA;
 
-
 std_msgs::Float64 FL;
 std_msgs::Float64 FR;
 std_msgs::Float64 BL;
@@ -120,18 +121,28 @@ bool back_arg = true;
 
 float flipper_xyz[4][3];
 
-float atan_data[4] = {0, };
+float atan_data[4] = {
+    0,
+};
 
-float now_angle[4] = {0, };
+float now_angle[4] = {
+    0,
+};
 
-float target_angle[4] = {0, };
+float target_angle[4] = {
+    0,
+};
 
-int max_z_cnt[4] = {0, };
+int max_z_cnt[4] = {
+    0,
+};
 
 bool auto_trigger[4] = {false, false, false, false};
 
 float MAF_input[6][MAF_MASK_SIZE];
-int maf_index[6] = {0, };
+int maf_index[6] = {
+    0,
+};
 
 float imu_roll = 0;
 float imu_pitch = 0;
