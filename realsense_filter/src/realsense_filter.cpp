@@ -186,6 +186,7 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
       filtered_FR += ANGLE_POS_SUM;
     }
   }
+
   flipper_front(filtered_FL, filtered_FR);
 }
 
@@ -242,6 +243,7 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
       filtered_BR -= ANGLE_POS_SUM;
     }
   }
+
   flipper_back(filtered_BL, filtered_BR);
 }
 

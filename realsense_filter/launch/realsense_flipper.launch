@@ -21,12 +21,7 @@
     <arg name="filters" default="pointcloud"/>
     <arg name="serial_no" value="$(arg rs2)"/>
   </include>
-  
-  <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch" if="$(eval front=='on')">
-    <arg name="camera" default="camera2"/>
-    <arg name="filters" default="pointcloud"/>
-    <arg name="serial_no" value="$(arg rs2)"/>
-  </include> -->
+
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen">
     <param name="realsese_visuals" type="string" value="$(arg rs_visuals)" />
     <param name="front" type="string" value="$(arg front)" />
