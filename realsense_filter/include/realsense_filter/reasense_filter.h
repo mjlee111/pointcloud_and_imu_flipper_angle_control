@@ -118,6 +118,7 @@ std_msgs::Float64 BR;
 bool marker_arg = false;
 bool front_arg = true;
 bool back_arg = true;
+bool init_arg = true;
 
 float flipper_xyz[4][3];
 

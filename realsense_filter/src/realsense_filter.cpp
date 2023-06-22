@@ -45,6 +45,18 @@ int main(int argc, char **argv)
     ROS_INFO("Back REALSENSE ENABLED");
   }
 
+  n.getParam("/realsense_filter_node/init", param);
+  if (param == "on")
+  {
+    init_arg = true;
+    ROS_INFO("Auto INIT Enabled.");
+  }
+  else if (param == "off")
+  {
+    init_arg = false;
+    ROS_INFO("Auto INIT Disabled.");
+  }
+
   thread pointcloud_front(frontthreadFunction, argc, argv);
   thread pointcloud_back(backthreadFunction, argc, argv);
 
@@ -135,7 +147,8 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
-  auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
+  if (init_arg)
+    auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -188,7 +201,8 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
-  auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
+  if (init_arg)
+    auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)

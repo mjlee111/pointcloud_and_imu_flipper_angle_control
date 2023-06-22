@@ -3,6 +3,7 @@
   <arg name="rs_visuals" default="off" />
   <arg name="front" default="on" />
   <arg name="back" default="on" />
+  <arg name="init" default="on" />
 
   <arg name="rs1" default="021222073502" />
   <arg name="rs2" default="948522070995" />
@@ -30,6 +31,7 @@
     <param name="realsese_visuals" type="string" value="$(arg rs_visuals)" />
     <param name="front" type="string" value="$(arg front)" />
     <param name="back" type="string" value="$(arg back)" />
+    <param name="init" type="string" value="$(arg init)" />
   </node>
   <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link" args="0.12 0 -0.24 1.5708 0 -0.523599 camera_color_frame base_link 10" />
   <node pkg="tf" type="static_transform_publisher" name="cam2_to_base_link" args="0.12 0 -0.57 -1.5708 0 0.610865 camera2_color_frame base_link 10" />
