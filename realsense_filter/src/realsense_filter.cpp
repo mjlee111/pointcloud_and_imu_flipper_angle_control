@@ -1,4 +1,5 @@
 #include "../include/realsense_filter/reasense_filter.h"
+// Realsense_Node
 
 using namespace std;
 
@@ -79,9 +80,7 @@ int main(int argc, char **argv)
 
     // VISUALIZATION_MARKER_PUB
     FL_marker = n.advertise<visualization_msgs::Marker>("FL_marker", 10);
-    FR_marker = n.advertise<visualization_msgs::Marker>("FR_marker", 10);
-    BL_marker = n.advertise<visualization_msgs::Marker>("BL_marker", 10);
-    BR_marker = n.advertise<visualization_msgs::Marker>("BR_marker", 10);
+    FR_marker = n.advertise<visualization_ms #add_executable(pointcloud_calc_node src / pointcloud_calc.cpp) s::Marker>("BR_marker", 10);
   }
 
   ros::Rate loop_rate(20);
