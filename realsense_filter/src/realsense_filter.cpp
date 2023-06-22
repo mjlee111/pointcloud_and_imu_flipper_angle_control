@@ -54,8 +54,7 @@ int main(int argc, char **argv)
     BL_point_pub = n.advertise<sensor_msgs::PointCloud2>("/BL_point", 10);
     BR_point_pub = n.advertise<sensor_msgs::PointCloud2>("/BR_point", 10);
 
-    // VISUALIZATION_TEXT_PUB
-    FL_marker_text = n.advertise<visualization_msgs::Marker>("/FL_text", 10);
+    // VISUALIZATION_TEXT_PUBsudo apt-get install indicator-stickynotes
     FR_marker_text = n.advertise<visualization_msgs::Marker>("/FR_text", 10);
     BL_marker_text = n.advertise<visualization_msgs::Marker>("/BL_text", 10);
     BR_marker_text = n.advertise<visualization_msgs::Marker>("/BR_text", 10);
@@ -130,7 +129,7 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
-  auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
+  // sauto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -183,7 +182,7 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
-  auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
+  // auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
