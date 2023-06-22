@@ -6,37 +6,43 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "realsense_filtering_node");
   ros::NodeHandle n;
-  cout << "START" << endl;
+  ROS_INFO("STARTING REALSENSE NODE!");
 
   std::string param;
   n.getParam("/realsense_filter_node/realsese_visuals", param);
   if (param == "off")
   {
     marker_arg = false;
+    ROS_INFO("Starting REALSENSE NODE with no Visuals!");
   }
   else if (param == "on")
   {
     marker_arg = true;
+    ROS_INFO("Starting REALSENSE NODE with Visuals!");
   }
 
   n.getParam("/realsense_filter_node/front", param);
   if (param == "off")
   {
     front_arg = false;
+    ROS_INFO("Front REALSENSE DISABLED.");
   }
   else if (param == "on")
   {
     front_arg = true;
+    ROS_INFO("Front REALSENSE ENABLED.");
   }
 
   n.getParam("/realsense_filter_node/back", param);
   if (param == "off")
   {
     back_arg = false;
+    ROS_INFO("Back REALSENSE DISABLED.");
   }
   else if (param == "on")
   {
     back_arg = true;
+    ROS_INFO("Back REALSENSE ENABLED");
   }
 
   thread pointcloud_front(frontthreadFunction, argc, argv);
@@ -129,7 +135,7 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
-  // sauto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
+  auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -182,7 +188,7 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BL = MAF(atan_data, FLIPPER_BL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) - (imu_pitch * 0.5)));
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
-  // auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
+  auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
