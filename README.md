@@ -11,34 +11,13 @@
 ####   https://www.intelrealsense.com/sdk-2/ : Intel realsense official site
 #### or
 ```shell
-cd 
-sudo apt-get install git libssl-dev libusb-1.0-0-dev pkg-config libgtk-3-dev
-mkdir realsense_SDK && cd realsense_SDK
-git clone https://github.com/IntelRealSense/librealsense.git
-cd librealsense
-mkdir build && cd build
-cmake ../ -DBUILD_EXAMPLES=true
-sudo make uninstall && make clean && make -j$(nproc)
-sudo make install
-sudo cp ../config/99-realsense-libusb.rules /etc/udev/rules.d/
-sudo udevadm control --reload-rules && udevadm trigger
+sudo apt update
+sudo apt install ros-melodic-librealsense*
 ```
 #### - Realsense ros package 
 ```shell 
-cd
-mkdir -p realsesne_ws/src
-cd realsense_ws/src
-git clone https://github.com/IntelRealSense/realsense-ros.git
-cd realsense-ros/
-git checkout `git tag | sort -V | grep -P "^2.\d+\.\d+" | tail -1` 
-cd ..
-catkin_init_workspace
-cd .. 
-catkin_make clean
-catkin_make -DCATKIN_ENABLE_TESTING=False -DCMAKE_BUILD_TYPE=Release
-catkin_make install
-echo "source ~/realsense_ws/devel/setup.bash" >> ~/.bashrc
-soruce ~/.bashrc
+sudo apt update
+sudo apt install ros-melodic-realsense2*
 ```
 
 #### - PCL ros 
