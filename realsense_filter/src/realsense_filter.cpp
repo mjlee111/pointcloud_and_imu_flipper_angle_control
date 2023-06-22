@@ -1,4 +1,5 @@
 #include "../include/realsense_filter/reasense_filter.h"
+// RO:BIT
 
 using namespace std;
 
@@ -55,6 +56,10 @@ int main(int argc, char **argv)
   {
     init_arg = false;
     ROS_INFO("Auto INIT Disabled.");
+    auto_trigger[FLIPPER_FL] = true;
+    auto_trigger[FLIPPER_FR] = true;
+    auto_trigger[FLIPPER_BL] = true;
+    auto_trigger[FLIPPER_BR] = true;
   }
 
   thread pointcloud_front(frontthreadFunction, argc, argv);
@@ -147,8 +152,10 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_FL = MAF(atan_data, FLIPPER_FL) + (IMU_DATA_RELIANCE * (-(imu_roll * 0.5) + (imu_pitch * 0.5)));
   float filtered_FR = MAF(atan_data, FLIPPER_FR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) + (imu_pitch * 0.5)));
 
-  if (init_arg)
+  if (init_arg == true)
+  {
     auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
+  }
 
   if (imu_pitch > 5)
   {
@@ -186,7 +193,6 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
       filtered_FR += ANGLE_POS_SUM;
     }
   }
-
   flipper_front(filtered_FL, filtered_FR);
 }
 
@@ -204,8 +210,9 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
   float filtered_BR = MAF(atan_data, FLIPPER_BR) + (IMU_DATA_RELIANCE * ((imu_roll * 0.5) - (imu_pitch * 0.5)));
 
   if (init_arg)
+  {
     auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
-
+  }
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -243,7 +250,6 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
       filtered_BR -= ANGLE_POS_SUM;
     }
   }
-
   flipper_back(filtered_BL, filtered_BR);
 }
 
