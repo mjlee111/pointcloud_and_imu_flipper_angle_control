@@ -149,6 +149,7 @@ void front_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 
   if (init_arg)
     auto_flipper_trigger(FLIPPER_FL, FLIPPER_FR);
+
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -203,6 +204,7 @@ void back_callback(const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg)
 
   if (init_arg)
     auto_flipper_trigger(FLIPPER_BL, FLIPPER_BR);
+
   if (imu_pitch > 5)
   {
     if (imu_roll < -5)
@@ -332,7 +334,10 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pass_filter3.filter(*filtered_cloud_1);
 
   if (filtered_cloud_1->empty())
+  {
+    auto_trigger[flipper] = true;
     return;
+  }
 
   pcl::VoxelGrid<pcl::PointXYZ> voxel_filter;
   voxel_filter.setInputCloud(filtered_cloud_1);
@@ -342,7 +347,10 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   voxel_filter.filter(*filtered_cloud_2);
 
   if (filtered_cloud_2->empty())
+  {
+    auto_trigger[flipper] = true;
     return;
+  }
 
   pcl::StatisticalOutlierRemoval<pcl::PointXYZ> outliner_filter;
   outliner_filter.setInputCloud(filtered_cloud_2);
@@ -352,7 +360,10 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   outliner_filter.filter(*three_filtered_cloud);
 
   if (three_filtered_cloud->empty())
+  {
+    auto_trigger[flipper] = true;
     return;
+  }
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
   Eigen::Affine3f transform = Eigen::Affine3f::Identity();
@@ -363,7 +374,10 @@ void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_clo
   pcl::transformPointCloud(*filtered_cloud_2, *transformed_cloud, transform);
 
   if (transformed_cloud->empty())
+  {
+    auto_trigger[flipper] = true;
     return;
+  }
 
   sensor_msgs::PointCloud2 final;
   pcl::toROSMsg(*transformed_cloud, final);
