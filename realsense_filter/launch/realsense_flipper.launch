@@ -1,6 +1,6 @@
 <launch>
-  <arg name="visuals" default="true" />
-  <arg name="rs_visuals" default="on" />
+  <arg name="visuals" default="false" />
+  <arg name="rs_visuals" default="off" />
   <arg name="front" default="on" />
   <arg name="back" default="on" />
   <arg name="init" default="on" />
@@ -8,20 +8,17 @@
   <arg name="rs1" default="021222073502" />
   <arg name="rs2" default="948522070995" />
 
-  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+  <!-- <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" default="rs_back"/>
         <arg name="filters" default="pointcloud"/>
         <arg name="serial_no" value="$(arg rs1)"/>
-        <!-- <arg name="enable_depth" default="false"/> -->
     </include>
 
-  <!-- front realsense -->
     <include file="$(find realsense2_camera)/launch/rs_camera.launch">
         <arg name="camera" default="rs_front"/>
         <arg name="filters" default="pointcloud"/>
         <arg name="serial_no" value="$(arg rs2)"/>
-        <!-- <arg name="enable_depth" default="false"/> -->
-    </include>
+    </include> -->
 
   
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen">
