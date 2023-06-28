@@ -62,6 +62,9 @@ int main(int argc, char **argv)
     auto_trigger[FLIPPER_BR] = true;
   }
 
+  n.getParam("/realsense_filter_node/init_min", init_min);
+  n.getParam("/realsense_filter_node/init_max", init_max);
+
   thread pointcloud_front(frontthreadFunction, argc, argv);
   thread pointcloud_back(backthreadFunction, argc, argv);
 
@@ -143,6 +146,26 @@ int main(int argc, char **argv)
     else if (param == false)
     {
       init_arg = false;
+    }
+
+    int save_min = init_min;
+    int save_max = init_max;
+    n.getParam("/realsense_filter_node/init_min", init_min);
+    n.getParam("/realsense_filter_node/init_max", init_max);
+    if (save_min != init_min || save_max != init_max)
+    {
+      if (init_min >= init_max)
+      {
+        init_min = save_min;
+        init_max = save_max;
+        ROS_ERROR("init_min PARAMETER CANNOT BE SAME OR BIGGER THAN init_max PARAMETER !!! RETERNING init_min to %d", init_min);
+        std::string command_min = "rosparam set /realsense_filter_node/init_min " + std::to_string(init_min);
+        std::string command_max = "rosparam set /realsense_filter_node/init_max " + std::to_string(init_max);
+
+        system(command_min.c_str());
+        system(command_max.c_str());
+      }
+      ROS_INFO("Setting init min -> %d | init_max -> %d", init_min, init_max);
     }
 
     loop_rate.sleep();
@@ -324,14 +347,14 @@ void auto_flipper_trigger(int flipper1, int flipper2)
 {
   if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
   {
-    if (atan_data[flipper1] > 0 && atan_data[flipper1] < 15)
+    if (atan_data[flipper1] > init_min && atan_data[flipper1] < init_max)
       max_z_cnt[flipper1] += 1;
     else
       max_z_cnt[flipper1] = 0;
     if (max_z_cnt[flipper1] > AUTO_FLIPPER_TRIGGER)
       max_z_cnt[flipper1] = AUTO_FLIPPER_TRIGGER;
 
-    if (atan_data[flipper2] > 0 && atan_data[flipper2] < 15)
+    if (atan_data[flipper2] > init_min && atan_data[flipper2] < init_max)
       max_z_cnt[flipper2] += 1;
     else
       max_z_cnt[flipper2] = 0;

@@ -3,6 +3,8 @@
   <arg name="front" default="true" />
   <arg name="back" default="true" />
   <arg name="init" default="true" />
+  <arg name="init_min" default="0" />
+  <arg name="init_max" default="15" />
 
   <arg name="rs1" default="021222073502" />
   <arg name="rs2" default="948522070995" />
@@ -21,10 +23,12 @@
 
   
   <node pkg="realsense_filter" type="realsense_filter_node" name="realsense_filter_node" output="screen">
-    <param name="realsese_visuals" value="$(arg visuals)" />
+    <param name="visuals" value="$(arg visuals)" />
     <param name="front" value="$(arg front)" />
     <param name="back" value="$(arg back)" />
     <param name="init" value="$(arg init)" />
+    <param name="init_min" value="$(arg init_min)"/>
+    <param name="init_max" value="$(arg init_max)"/>
   </node>
   <!-- <node pkg="tf" type="static_transform_publisher" name="cam_to_base_link" args="0.12 0 -0.24 1.5708 0 -0.523599 camera_color_frame base_link 10" />
   <node pkg="tf" type="static_transform_publisher" name="cam2_to_base_link" args="0.12 0 -0.57 -1.5708 0 0.610865 camera2_color_frame base_link 10" /> -->

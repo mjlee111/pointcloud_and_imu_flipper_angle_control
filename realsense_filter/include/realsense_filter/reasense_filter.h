@@ -122,6 +122,9 @@ bool init_arg = true;
 
 bool visuals_arg_trig = false;
 
+int init_min = 0;
+int init_max = 15;
+
 float flipper_xyz[4][3];
 
 float atan_data[4] = {
