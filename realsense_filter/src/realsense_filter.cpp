@@ -270,22 +270,22 @@ void imu_callback(const sensor_msgs::Imu input_imu)
 
 void auto_flipper_trigger(int flipper1, int flipper2)
 {
-  if (flipper_xyz[flipper1][2] > 0.1 && flipper_xyz[flipper1][2] < 0.5)
-    max_z_cnt[flipper1] += 1;
-  else
-    max_z_cnt[flipper1] = 0;
-  if (max_z_cnt[flipper1] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[flipper1] = AUTO_FLIPPER_TRIGGER;
-
-  if (flipper_xyz[flipper2][2] > 0.1 && flipper_xyz[flipper2][2] < 0.5)
-    max_z_cnt[flipper2] += 1;
-  else
-    max_z_cnt[flipper2] = 0;
-  if (max_z_cnt[flipper2] > AUTO_FLIPPER_TRIGGER)
-    max_z_cnt[flipper2] = AUTO_FLIPPER_TRIGGER;
-
   if (imu_roll < 3 && imu_roll > -3 && imu_pitch < 3 && imu_pitch > -3)
   {
+    if (atan_data[flipper1] > 0 && atan_data[flipper1] < 15)
+      max_z_cnt[flipper1] += 1;
+    else
+      max_z_cnt[flipper1] = 0;
+    if (max_z_cnt[flipper1] > AUTO_FLIPPER_TRIGGER)
+      max_z_cnt[flipper1] = AUTO_FLIPPER_TRIGGER;
+
+    if (atan_data[flipper2] > 0 && atan_data[flipper2] < 15)
+      max_z_cnt[flipper2] += 1;
+    else
+      max_z_cnt[flipper2] = 0;
+    if (max_z_cnt[flipper2] > AUTO_FLIPPER_TRIGGER)
+      max_z_cnt[flipper2] = AUTO_FLIPPER_TRIGGER;
+
     if (max_z_cnt[flipper1] >= AUTO_FLIPPER_TRIGGER)
       auto_trigger[flipper1] = true;
     else
@@ -297,7 +297,10 @@ void auto_flipper_trigger(int flipper1, int flipper2)
       auto_trigger[flipper2] = false;
   }
   else
-    auto_trigger[flipper1, flipper2] = true;
+  {
+    auto_trigger[flipper1] = true;
+    auto_trigger[flipper2] = true;
+  }
 }
 
 void three_filter(int flipper, const sensor_msgs::PointCloud2ConstPtr &input_cloud_msg, const ros::Publisher output_pub,
