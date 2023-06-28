@@ -120,6 +120,8 @@ bool front_arg = true;
 bool back_arg = true;
 bool init_arg = true;
 
+bool visuals_arg_trig = false;
+
 float flipper_xyz[4][3];
 
 float atan_data[4] = {

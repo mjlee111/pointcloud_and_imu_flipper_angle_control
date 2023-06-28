@@ -9,50 +9,50 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   ROS_INFO("STARTING REALSENSE NODE!");
 
-  std::string param;
-  n.getParam("/realsense_filter_node/realsese_visuals", param);
-  if (param == "off")
+  bool param;
+  n.getParam("/realsense_filter_node/visuals", param);
+  if (param == false)
   {
     marker_arg = false;
     ROS_INFO("Starting REALSENSE NODE with no Visuals!");
   }
-  else if (param == "on")
+  else if (param == true)
   {
     marker_arg = true;
     ROS_INFO("Starting REALSENSE NODE with Visuals!");
   }
 
   n.getParam("/realsense_filter_node/front", param);
-  if (param == "off")
+  if (param == false)
   {
     front_arg = false;
     ROS_INFO("Front REALSENSE DISABLED.");
   }
-  else if (param == "on")
+  else if (param == true)
   {
     front_arg = true;
     ROS_INFO("Front REALSENSE ENABLED.");
   }
 
   n.getParam("/realsense_filter_node/back", param);
-  if (param == "off")
+  if (param == false)
   {
     back_arg = false;
     ROS_INFO("Back REALSENSE DISABLED.");
   }
-  else if (param == "on")
+  else if (param == true)
   {
     back_arg = true;
     ROS_INFO("Back REALSENSE ENABLED");
   }
 
   n.getParam("/realsense_filter_node/init", param);
-  if (param == "on")
+  if (param == true)
   {
     init_arg = true;
     ROS_INFO("Auto INIT Enabled.");
   }
-  else if (param == "off")
+  else if (param == false)
   {
     init_arg = false;
     ROS_INFO("Auto INIT Disabled.");
@@ -93,6 +93,58 @@ int main(int argc, char **argv)
   while (ros::ok())
   {
     ros::spinOnce();
+
+    bool param;
+    n.getParam("/realsense_filter_node/visuals", param);
+    if (param == false)
+    {
+      if (marker_arg == true)
+      {
+        ROS_INFO("Turning off visual tools");
+        system("rosnode kill /flipper_control_data");
+        system("rosnode kill /rviz");
+      }
+      marker_arg = false;
+    }
+    else if (param == true)
+    {
+      if (marker_arg == false)
+      {
+        system("roslaunch realsense_filter visual.launch &");
+      }
+      marker_arg = true;
+    }
+
+    n.getParam("/realsense_filter_node/front", param);
+    if (param == false)
+    {
+      front_arg = false;
+    }
+    else if (param == true)
+    {
+      front_arg = true;
+    }
+
+    n.getParam("/realsense_filter_node/back", param);
+    if (param == false)
+    {
+      back_arg = false;
+    }
+    else if (param == true)
+    {
+      back_arg = true;
+    }
+
+    n.getParam("/realsense_filter_node/init", param);
+    if (param == true)
+    {
+      init_arg = true;
+    }
+    else if (param == false)
+    {
+      init_arg = false;
+    }
+
     loop_rate.sleep();
   }
   if (front_arg)

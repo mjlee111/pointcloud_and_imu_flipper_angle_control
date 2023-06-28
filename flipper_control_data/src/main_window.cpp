@@ -46,7 +46,7 @@ namespace flipper_control_data
 
 	void MainWindow::quit_slot(void)
 	{
-		
+		this->close();
 	}
 
 	void MainWindow::FL_slot(void)
