@@ -419,9 +419,9 @@ void max_Z(const sensor_msgs::PointCloud2ConstPtr &cloud_msg, int flipper)
   }
   float tan = max_z / y_of_max_z;
   float angle = atan(tan);
-  angle = angle * 180 / M_PI;
+  angle = toDEG(angle);
 
-  atan_data[flipper];
+  atan_data[flipper] = angle;
   flipper_xyz[flipper][0] = x_of_max_z;
   flipper_xyz[flipper][1] = y_of_max_z;
   flipper_xyz[flipper][2] = max_z;
