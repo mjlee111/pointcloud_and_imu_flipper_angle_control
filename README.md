@@ -37,9 +37,9 @@ roslaunch realsense_filter realsense_flipper.launch
 ```
 ### Launch parameters
 #### - visuals (true/false) : rviz & flipper data UI(flipper_control_data node) available default -> false
-#### - rs_visuals (on/off) : realsense_filter node pointcloud data publish parameter default -> off
-#### - front (on/off) : front two fillper control parameter default -> on
-#### - back (on/off) : back two flipper control parameter default -> on
+#### - front (true/false) : front two fillper control parameter default -> true
+#### - back (true/false) : back two flipper control parameter default -> true
+#### - init (true/false) : auto init control parameter default -> true
 
 ## Package Description 
 ### realsense_filter 
